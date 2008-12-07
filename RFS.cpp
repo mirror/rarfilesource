@@ -423,6 +423,7 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 					delete rh.fh.filename;
 					SetFilePointer (hFile, rh.bytesRemaining, 0, FILE_CURRENT);
 					DbgLog ((LOG_TRACE, 2, L"Compressed files are not supported."));
+					continue;
 				}
 
 				filename = rh.fh.filename;

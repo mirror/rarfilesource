@@ -74,10 +74,13 @@ HRESULT CRFSOutputPin::GetMediaType (int iPosition, CMediaType *pMediaType)
 	if (iPosition < 0)
 		return E_INVALIDARG;
 
-	if (iPosition > 0)
+	if (iPosition > 1)
 		return VFW_S_NO_MORE_ITEMS;
 
-	*pMediaType = m_file->media_type;
+	if (iPosition == 0)
+		*pMediaType = m_file->media_type;
+	else
+		*pMediaType = &MEDIASUBTYPE_NULL;
 
 	return S_OK;
 }

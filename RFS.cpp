@@ -33,8 +33,8 @@ DEFINE_GUID(CLSID_RARFileSource,
 
 
 //{1AC0BEBD-4D2B-45AD-BCEB-F2C41C5E3788}
-//DEFINE_GUID(MEDIASUBTYPE_Matroska,
-//0x1AC0BEBD, 0x4D2B, 0x45AD, 0xBC, 0xEB, 0xF2, 0xC4, 0x1C, 0x5E, 0x37, 0x88);
+DEFINE_GUID(MEDIASUBTYPE_Matroska,
+0x1AC0BEBD, 0x4D2B, 0x45AD, 0xBC, 0xEB, 0xF2, 0xC4, 0x1C, 0x5E, 0x37, 0x88);
 
 // Setup information
 const AMOVIESETUP_MEDIATYPE sudPinTypes =
@@ -88,9 +88,9 @@ file_type_t CRARFileSource::s_file_types [] =
 	{ "avi", &MEDIASUBTYPE_Avi },
 	{ "mpg", &MEDIASUBTYPE_MPEG1System },
 	{ "vob", &MEDIASUBTYPE_MPEG2_PROGRAM },
-	{ "mkv", &MEDIASUBTYPE_NULL }, // MEDIASUBTYPE_Matroska doesn't work with Haali Media Splitter
-	{ "mka", &MEDIASUBTYPE_NULL },
-	{ "mks", &MEDIASUBTYPE_NULL },
+	{ "mkv", &MEDIASUBTYPE_Matroska },
+	{ "mka", &MEDIASUBTYPE_Matroska },
+	{ "mks", &MEDIASUBTYPE_Matroska },
 	{ "mov", &MEDIASUBTYPE_QTMovie },
 	{ "wav", &MEDIASUBTYPE_WAVE },
 	{ "mp3", &MEDIASUBTYPE_MPEG1Audio },

@@ -213,6 +213,7 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 	LONGLONG collect = 0;
 	DWORD ret;
 	DWORD files = 0;
+	int volume_digits;
 
 	if (!lpwszFileName)
 		return E_POINTER;
@@ -486,10 +487,21 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 		{
 			if (!files)
 			{
-				if (multi_volume && new_numbering)
-					rar_ext -= 2;
+				// Locate volume counter
+				if (new_numbering)
+				{
+					volume_digits = 0;
+					do
+					{
+						rar_ext --;
+						volume_digits ++;
+					} while (iswdigit (*(rar_ext - 1)));
+				}
 				else
+				{
 					rar_ext += 2;
+					volume_digits = 2;
+				}
 			}
 		}
 		else
@@ -500,9 +512,9 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 
 		files ++;
 
-		StringCchPrintf (rar_ext, 3, L"%02d", new_numbering ? files + 1 : files - 1);
+		StringCchPrintf (rar_ext, volume_digits + 1, L"%0*d", volume_digits, new_numbering ? files + 1 : files - 1);
 		if (new_numbering)
-			rar_ext [2] = L'.';
+			rar_ext [volume_digits] = L'.';
 
 		DbgLog ((LOG_TRACE, 2, L"Loading file \"%s\".", current_rar_filename));
 		ha.Close();

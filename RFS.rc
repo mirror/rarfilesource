@@ -1,0 +1,41 @@
+
+#include <windows.h>
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,8,0,0
+ PRODUCTVERSION 0,8,0,0
+ FILEFLAGSMASK 0x30003fL
+#ifdef _DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS VOS_NT
+ FILETYPE VFT_DLL
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "FileDescription", "RAR File Source DirectShow Filter\0"
+            VALUE "FileVersion", "0.8\0"
+            VALUE "InternalName", "RARFileSource\0"
+            VALUE "LegalCopyright", "(C) 2008, OctaneSnail"
+            VALUE "OriginalFilename", "RARFileSource.ax\0"
+            VALUE "ProductName", "RAR File Source\0"
+            VALUE "ProductVersion", "0.8\0"
+            VALUE "ActiveMovie", "Filter dll\0"
+            VALUE "OLESelfRegister", "AM20\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

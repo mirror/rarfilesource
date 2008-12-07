@@ -205,6 +205,7 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 	DWORD mem_offset = 0;
 	char *filename = NULL;
 	wchar_t *current_rar_filename = NULL, *rar_ext;
+	bool first_archive_file = true;
 	bool multi_volume = false, file_complete = false, new_numbering = false;
 	rar_header_t rh;
 	BYTE marker [7];
@@ -314,8 +315,69 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 			return S_FALSE;
 		}
 
-		new_numbering = new_numbering || (rh.ch.flags & MHD_NEWNUMBERING);
-		multi_volume = multi_volume || (rh.ch.flags & MHD_FIRSTVOLUME);
+		if (first_archive_file)
+		{
+			first_archive_file = false;
+
+			new_numbering = rh.ch.flags & MHD_NEWNUMBERING;
+			multi_volume = rh.ch.flags & MHD_VOLUME;
+
+			if (multi_volume)
+			{
+				if (!rar_ext)
+				{
+					ErrorMsg (0, L"Input file does not end with .rar");
+					return S_FALSE;
+				}
+
+				// Locate volume counter
+				if (new_numbering)
+				{
+					volume_digits = 0;
+					do
+					{
+						rar_ext --;
+						volume_digits ++;
+					} while (iswdigit (*(rar_ext - 1)));
+				}
+				else
+				{
+					rar_ext += 2;
+					volume_digits = 2;
+				}
+
+				if (!(rh.ch.flags & MHD_FIRSTVOLUME))
+				{
+					DbgLog ((LOG_TRACE, 2, L"Rewinding to the first file in the set."));
+
+					if (new_numbering)
+					{
+						StringCchPrintf (rar_ext, volume_digits + 1, L"%0*d", volume_digits, 1);
+						rar_ext [volume_digits] = L'.';
+					}
+					else
+					{
+						rar_ext [0] = L'a';
+						rar_ext [1] = L'r';
+					}
+
+					DbgLog ((LOG_TRACE, 2, L"Loading file \"%s\".", current_rar_filename));
+					ha.Close();
+					hFile = CreateFile (current_rar_filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+					if (hFile == INVALID_HANDLE_VALUE) 
+					{
+						ErrorMsg (GetLastError (), L"Could not open file \"%s\".", current_rar_filename);
+						return FALSE;
+					}
+					continue;
+				}
+			}
+		}
+		else
+		{
+			ASSERT (new_numbering == (bool) (rh.ch.flags & MHD_NEWNUMBERING));
+			ASSERT (rh.ch.flags & MHD_VOLUME);
+		}
 
 		// Find file headers
 		while (true)
@@ -350,7 +412,7 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 
 			DbgLog ((LOG_TRACE, 2, L"FILENAME \"%S\"", rh.fh.filename));
 
-			multi_volume = multi_volume || (rh.ch.flags & LHD_SPLIT_AFTER);
+			ASSERT (multi_volume == (bool) (rh.ch.flags & LHD_SPLIT_AFTER));
 
 			if (filename)
 			{
@@ -482,33 +544,6 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 			break;
 
 		// Open the next file.
-
-		if (rar_ext)
-		{
-			if (!files)
-			{
-				// Locate volume counter
-				if (new_numbering)
-				{
-					volume_digits = 0;
-					do
-					{
-						rar_ext --;
-						volume_digits ++;
-					} while (iswdigit (*(rar_ext - 1)));
-				}
-				else
-				{
-					rar_ext += 2;
-					volume_digits = 2;
-				}
-			}
-		}
-		else
-		{
-			ErrorMsg (0, L"Input file does not end with .rar");
-			return S_FALSE;
-		}
 
 		files ++;
 

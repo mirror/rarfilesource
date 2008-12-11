@@ -113,15 +113,17 @@ STDAPI DllRegisterServer ()
 {
 	HKEY key;
 	LONG ret;
+	int i;
+	wchar_t key_name [] = L"Media Type\\Extensions\\.rar";
 
-	ret = RegCreateKey (HKEY_CLASSES_ROOT, L"Media Type\\Extensions\\.rar", &key);
+	ret = RegCreateKey (HKEY_CLASSES_ROOT, key_name, &key);
 
 	if (ret != ERROR_SUCCESS)
 	{
-		ret = RegOpenKey (HKEY_CLASSES_ROOT, L"Media Type\\Extensions\\.rar", &key);
+		ret = RegOpenKey (HKEY_CLASSES_ROOT, key_name, &key);
 
 		if (ret != ERROR_SUCCESS)
-			return S_FALSE;
+			return ret;
 	}
 
 	ret = RegSetValueExA (key, "Source Filter", 0, REG_SZ, (BYTE *) RFS_GUID_STRING, (DWORD) strlen(RFS_GUID_STRING) + 1);
@@ -129,10 +131,30 @@ STDAPI DllRegisterServer ()
 	if (ret != ERROR_SUCCESS)
 	{
 		RegCloseKey (key);
-		return S_FALSE;
+		return ret;
 	}
 
 	RegCloseKey (key);
+
+	for (i = 0; i < 100; i ++)
+	{
+		key_name [24] = L'0' + i / 10;
+		key_name [25] = L'0' + i % 10;
+
+		ret = RegCreateKey (HKEY_CLASSES_ROOT, key_name, &key);
+
+		if (ret != ERROR_SUCCESS)
+		{
+			ret = RegOpenKey (HKEY_CLASSES_ROOT, key_name, &key);
+
+			if (ret != ERROR_SUCCESS)
+				continue;
+		}
+
+		ret = RegSetValueExA (key, "Source Filter", 0, REG_SZ, (BYTE *) RFS_GUID_STRING, (DWORD) strlen(RFS_GUID_STRING) + 1);
+
+		RegCloseKey (key);
+	}
 
 	return AMovieDllRegisterServer2 (TRUE);
 }
@@ -143,18 +165,25 @@ STDAPI DllUnregisterServer ()
 	LONG ret;
 	char value [40];
 	DWORD len = sizeof (value);
+	wchar_t key_name [] = L"Media Type\\Extensions\\.rar";
+	int i;
 
-	ret = RegOpenKey (HKEY_CLASSES_ROOT, L"Media Type\\Extensions\\.rar", &key);
-	if (ret == ERROR_SUCCESS)
+	for (i = 0; i < 101; i ++)
 	{
-		ret = RegQueryValueExA (key, "Source Filter", NULL, NULL, (BYTE *) value, &len);
-		RegCloseKey (key);
-
+		ret = RegOpenKey (HKEY_CLASSES_ROOT, key_name, &key);
 		if (ret == ERROR_SUCCESS)
 		{
-			if (!_stricmp (value, RFS_GUID_STRING))
-				RegDeleteKey (HKEY_CLASSES_ROOT, L"Media Type\\Extensions\\.rar");
+			ret = RegQueryValueExA (key, "Source Filter", NULL, NULL, (BYTE *) value, &len);
+			RegCloseKey (key);
+
+			if (ret == ERROR_SUCCESS)
+			{
+				if (!_stricmp (value, RFS_GUID_STRING))
+					RegDeleteKey (HKEY_CLASSES_ROOT, key_name);
+			}
 		}
+		key_name [24] = L'0' + i / 10;
+		key_name [25] = L'0' + i % 10;
 	}
 
 	return AMovieDllRegisterServer2 (FALSE);

@@ -1,5 +1,6 @@
 
 #include <windows.h>
+#include "resource.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -38,4 +39,18 @@ BEGIN
     BEGIN
         VALUE "Translation", 0x409, 1252
     END
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_FILELIST DIALOGEX 0, 0, 316, 115
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "File Selection"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Select",IDOK,259,94,50,14
+    LISTBOX         IDC_FILELIST,7,7,302,84,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END

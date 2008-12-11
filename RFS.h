@@ -34,10 +34,12 @@ public:
 	DWORD size;
 };
 
-class File
+class File : public Node<File>
 {
 public:
-	File (void) : parts (0), list (NULL), array (NULL) { }
+	File (void) : parts (0), list (NULL), array (NULL), filename(NULL),
+		type_known (false), unsupported(false) { }
+
 	~File (void)
 	{
 		FilePart *fp = list;
@@ -48,6 +50,7 @@ public:
 			delete tmp;
 		}
 		delete [] array;
+		delete [] filename;
 	}
 
 	CMediaType media_type;
@@ -56,6 +59,10 @@ public:
 
 	FilePart *list;
 	FilePart *array;
+
+	char *filename;
+	bool type_known;
+	bool unsupported;
 };
 
 typedef struct
@@ -87,6 +94,9 @@ public:
 private:
 	CRARFileSource (LPUNKNOWN punk, HRESULT *phr);
 	~CRARFileSource ();
+
+	int ScanArchive (wchar_t *archive_name, List<File> *file_list, int *known_files_found);
+	static int CALLBACK DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	CRFSOutputPin m_pin;
 	CCritSec m_lock;

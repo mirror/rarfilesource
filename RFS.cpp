@@ -617,6 +617,10 @@ int CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam
 				EndDialog (hwndDlg, ListBox_GetItemData(GetDlgItem (hwndDlg, IDC_FILELIST), index));
 				return TRUE;
 
+		case IDCANCEL:
+				EndDialog (hwndDlg, NULL);
+				return TRUE;
+
 		case IDC_FILELIST:
 			switch (HIWORD (wParam))
 			{
@@ -629,8 +633,7 @@ int CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam
 		break;
 
 	case WM_CLOSE:
-		index = ListBox_GetCurSel (GetDlgItem (hwndDlg, IDC_FILELIST));
-		EndDialog (hwndDlg, ListBox_GetItemData(GetDlgItem (hwndDlg, IDC_FILELIST), index));
+		EndDialog (hwndDlg, NULL);
 		return TRUE;
 	}
 

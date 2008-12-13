@@ -86,7 +86,6 @@ int g_cTemplates = sizeof (g_Templates) / sizeof (g_Templates[0]);
 /* static */
 file_type_t CRARFileSource::s_file_types [] =
 {
-	{ "asf", &MEDIASUBTYPE_Asf },
 	{ "avi", &MEDIASUBTYPE_Avi },
 	{ "mpg", &MEDIASUBTYPE_MPEG1System },
 	{ "vob", &MEDIASUBTYPE_MPEG2_PROGRAM },

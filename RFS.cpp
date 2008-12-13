@@ -443,6 +443,12 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 
 				file = new File ();
 
+				if (!file)
+				{
+					ErrorMsg (0, L"Out of memory.");
+					return FALSE;
+				}
+
 				file->media_type.SetType (&MEDIATYPE_Stream);
 				file->media_type.SetSubtype (&MEDIASUBTYPE_NULL);
 				file->filename = rh.fh.filename;

@@ -22,7 +22,8 @@
 class FilePart
 {
 public:
-	FilePart (void) : next (NULL), file (INVALID_HANDLE_VALUE) { }
+	FilePart (void) : next (NULL), file (INVALID_HANDLE_VALUE),
+		in_rar_offset (0), in_file_offset (0), size (0) { }
 	~FilePart (void) { if (file != INVALID_HANDLE_VALUE) CloseHandle (file); }
 
 	FilePart *next;
@@ -37,7 +38,7 @@ public:
 class File : public Node<File>
 {
 public:
-	File (void) : parts (0), list (NULL), array (NULL), filename(NULL),
+	File (void) : size (0), parts (0), list (NULL), array (NULL), filename(NULL),
 		type_known (false), unsupported(false) { }
 
 	~File (void)

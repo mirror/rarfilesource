@@ -26,7 +26,8 @@ class FilePart;
 class SubRequest : public Node<SubRequest>
 {
 public:
-	SubRequest (void) { memset (&o, 0, sizeof (OVERLAPPED)); o.hEvent = INVALID_HANDLE_VALUE; }
+	SubRequest (void) : file (INVALID_HANDLE_VALUE), expected (0)
+		{ memset (&o, 0, sizeof (OVERLAPPED)); o.hEvent = INVALID_HANDLE_VALUE; }
 	~SubRequest (void) { if (o.hEvent != INVALID_HANDLE_VALUE) CloseHandle (o.hEvent); }
 
 	HANDLE file;

@@ -666,7 +666,7 @@ int CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam
 			MultiByteToWideChar (CP_ACP, 0, file->filename, -1, tempString, len);
 			index = ListBox_AddString (GetDlgItem (hwndDlg, IDC_FILELIST), tempString);
 			ListBox_SetItemData(GetDlgItem (hwndDlg, IDC_FILELIST), index, file);
-			delete tempString;
+			delete [] tempString;
 
 			file = file_list->Next (file);
 		}

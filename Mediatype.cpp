@@ -185,7 +185,7 @@ int getMediaTypeList(List<MediaType> *mediaTypeList)
 					newType->checkByteGroupCount++;					
 				}
 
-				delete valueData;
+				delete [] valueData;
 			}
 			if(!newType->checkByteGroupCount)
 			{

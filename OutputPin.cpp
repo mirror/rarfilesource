@@ -455,7 +455,7 @@ STDMETHODIMP CRFSOutputPin::WaitForNext (DWORD dwTimeout, IMediaSample **ppSampl
 	// FIXME: Any time spent waiting in WaitForSingleObject above should be subtracted from dwTimeout
 	r = WaitForMultipleObjects (count, hArray, TRUE, dwTimeout);
 
-	delete hArray;
+	delete [] hArray;
 
 	if (r == WAIT_TIMEOUT)
 	{

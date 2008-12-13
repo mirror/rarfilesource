@@ -129,7 +129,7 @@ STDMETHODIMP CRFSOutputPin::RequestAllocator (IMemAllocator *pPreferred, ALLOCAT
 	ALLOCATOR_PROPERTIES actual;
 	HRESULT hr;
 
-	DbgLog((LOG_TRACE, 2, L"Requested alignment = %d", pProps->cbAlign));
+	DbgLog((LOG_TRACE, 2, L"Requested alignment = %ld", pProps->cbAlign));
 	if (pProps->cbAlign)
 		m_align = pProps->cbAlign;
 	else
@@ -212,7 +212,7 @@ HRESULT CRFSOutputPin::ConvertSample (IMediaSample* sample, LONGLONG *pos, DWORD
 
 	if (llPos > llTotal)
 	{
-		DbgLog((LOG_TRACE, 2, L"ConvertSample EOF pos = %d total = %d", llPos, llTotal));
+		DbgLog((LOG_TRACE, 2, L"ConvertSample EOF pos = %lld total = %lld", llPos, llTotal));
 		return ERROR_HANDLE_EOF;
 	}
 
@@ -269,7 +269,7 @@ STDMETHODIMP CRFSOutputPin::Request (IMediaSample* pSample, DWORD_PTR dwUser)
 
 	if(!(IsAligned (llPosition) && IsAligned (lLength) && IsAligned ((INT_PTR) pBuffer)))
 	{
-		DbgLog((LOG_TRACE, 2, L"SyncReadAligned bad alignment. align = %d, pos = %d, len = %d, buf = %p",
+		DbgLog((LOG_TRACE, 2, L"SyncReadAligned bad alignment. align = %lu, pos = %lld, len = %lu, buf = %p",
 			m_align, llPosition, lLength, pBuffer));
         return VFW_E_BADALIGN;
 	}
@@ -494,7 +494,7 @@ STDMETHODIMP CRFSOutputPin::WaitForNext (DWORD dwTimeout, IMediaSample **ppSampl
 		// TODO: Try to recover if read != sr->expected.
 		if (read != sr->expected)
 		{
-			DbgLog((LOG_TRACE, 2, L"CRFSOutputPin::WaitForNext Got %d expected %d!", read, sr->expected));
+			DbgLog((LOG_TRACE, 2, L"CRFSOutputPin::WaitForNext Got %lu expected %lu!", read, sr->expected));
 			delete sr;
 			ret = S_FALSE;
 			break;
@@ -527,7 +527,7 @@ STDMETHODIMP CRFSOutputPin::SyncReadAligned (IMediaSample* pSample)
 
 	if(!(IsAligned (llPosition) && IsAligned (lLength) && IsAligned ((INT_PTR) pBuffer)))
 	{
-		DbgLog((LOG_TRACE, 2, L"SyncReadAligned bad alignment. align = %d, pos = %d, len = %d, buf = %p",
+		DbgLog((LOG_TRACE, 2, L"SyncReadAligned bad alignment. align = %lu, pos = %lld, len = %lu, buf = %p",
 			m_align, llPosition, lLength, pBuffer));
         return VFW_E_BADALIGN;
 	}
@@ -572,7 +572,7 @@ HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuff
 	pos = FindStartPart (llPosition);
 	if (pos == -1)
 	{
-		DbgLog((LOG_TRACE, 2, L"FindStartPart bailed length = %d, pos = %d", lLength, llPosition));
+		DbgLog((LOG_TRACE, 2, L"FindStartPart bailed length = %lu, pos = %lld", lLength, llPosition));
 		return ERROR_HANDLE_EOF;
 	}
 

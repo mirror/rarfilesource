@@ -317,7 +317,7 @@ static HRESULT SyncRead (File *file, LONGLONG llPosition, DWORD lLength, BYTE* p
 	pos = FindStartPart (file,llPosition);
 	if (pos == -1)
 	{
-		DbgLog((LOG_TRACE, 2, L"Mediatype.cpp - FindStartPart bailed length = %d, pos = %d", lLength, llPosition));
+		DbgLog((LOG_TRACE, 2, L"Mediatype.cpp - FindStartPart bailed length = %lu, pos = %lld", lLength, llPosition));
 		return ERROR_HANDLE_EOF;
 	}
 

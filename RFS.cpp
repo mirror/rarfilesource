@@ -409,7 +409,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				continue;
 			}
 
-			DbgLog ((LOG_TRACE, 2, L"SIZE %08x %08x  OS %02x  CRC %08x  TIMESTAMP %08x  VERSION %d  METHOD %02x  LEN %04x  ATTRIB %08x",
+			DbgLog ((LOG_TRACE, 2, L"SIZE %08lx %08lx  OS %02x  CRC %08lx  TIMESTAMP %08lx  VERSION %d  METHOD %02x  LEN %04lx  ATTRIB %08lx",
 				rh.fh.size.HighPart, rh.fh.size.LowPart, rh.fh.os, rh.fh.crc, rh.fh.timestamp, rh.fh.version, rh.fh.method, rh.fh.name_len, rh.fh.attributes));
 
 			DbgLog ((LOG_TRACE, 2, L"FILENAME \"%S\"", rh.fh.filename));

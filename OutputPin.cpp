@@ -579,7 +579,7 @@ HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuff
 #ifdef _DEBUG
 	if (pos != last_pos)
 	{
-		DbgLog((LOG_TRACE, 2, L"Now reading file %d.", pos));
+		DbgLog((LOG_TRACE, 2, L"Now reading volume %d.", pos));
 		last_pos = pos;
 	}
 #endif

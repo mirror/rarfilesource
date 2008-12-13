@@ -324,7 +324,7 @@ static HRESULT SyncRead (File *file, LONGLONG llPosition, DWORD lLength, BYTE* p
 #ifdef _DEBUG
 	if (pos != last_pos)
 	{
-		DbgLog((LOG_TRACE, 2, L"Mediatype.cpp - Now reading file %d.", pos));
+		DbgLog((LOG_TRACE, 2, L"Mediatype.cpp - Now reading volume %d.", pos));
 		last_pos = pos;
 	}
 #endif

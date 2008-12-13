@@ -405,7 +405,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 			if (rh.ch.type != HEADER_TYPE_FILE)
 			{
 				SetFilePointerEx (hFile, rh.bytesRemaining, NULL, FILE_CURRENT);
-				DbgLog ((LOG_TRACE, 2,L"Skipping unknown header type %02x.", rh.ch.type));
+				DbgLog ((LOG_TRACE, 2,L"Skipping unknown header of type %02x.", rh.ch.type));
 				continue;
 			}
 

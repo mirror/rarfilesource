@@ -161,18 +161,26 @@ int getMediaTypeList(List<MediaType> *mediaTypeList)
 				valueNameSize = MAX_VALUE_SIZE;
 				retVal = RegEnumValue(subTypeKey,k,valueName,&valueNameSize,NULL,&valueType,(LPBYTE)valueData,&valueSize);
 				if(retVal != ERROR_SUCCESS)
+				{
+					delete [] valueData;
 					continue;
+				}
 
 				newGroup = new CheckByteGroup;			// each value is one group
 				if (!newGroup)
 				{
+					delete [] valueData;
 					ErrorMsg (0, L"Out of memory.");
 					return -1;
 				}
 				newGroup->checkByteCount = parseCheckBytes(valueData,&newGroup->checkBytes);
 
 				if(newGroup->checkByteCount==-1)
+				{
+					delete [] valueData;
+					delete newGroup;
 					return -1;		// this means out of memory
+				}
 
 				if(!newGroup->checkByteCount)
 				{
@@ -236,6 +244,7 @@ int checkFileForMediaType(File *file,List<MediaType> *mediaTypeList,MediaType **
 				ret = SyncRead(file,actOffset,cbg->checkBytes[i].byteCount,necessaryBytes,&lBytesRead);
 				if(ret != S_OK) {
 					matches = false;
+					delete [] necessaryBytes;
 					break;
 				}
 				// mask and compare all bytes in this entry

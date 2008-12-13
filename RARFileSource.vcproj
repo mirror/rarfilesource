@@ -215,6 +215,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Mediatype.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\OutputPin.cpp"
 				>
 			</File>
@@ -242,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\List.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Mediatype.h"
 				>
 			</File>
 			<File

@@ -24,6 +24,7 @@
 #include "RAR.h"
 #include "Anchor.h"
 #include "resource.h"
+#include "Mediatype.h"
 
 
 // {9FFE11D2-29F2-463f-AD5F-C04A5EE2E58D}
@@ -251,6 +252,9 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	*ok_files_found = 0;
 	LARGE_INTEGER zero = {0};
 
+	MediaType *mType;
+	List<MediaType> mediaTypeList;
+
 	Anchor<File> af (&file);
 	ArrayAnchor<wchar_t> acrf (&current_rar_filename);
 
@@ -275,6 +279,9 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 		return FALSE;
 	}
 	Anchor<HANDLE> ha(&hFile);
+
+	if(getMediaTypeList(&mediaTypeList)==-1)
+		return FALSE;		// this means out of memory
 
 	// Scan through archive volume(s)
 	while (true)
@@ -466,32 +473,6 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					DbgLog ((LOG_TRACE, 2, L"Compressed files are not supported."));
 					file->unsupported = true;
 				}
-
-				char *ext = strrchr (rh.fh.filename, '.');
-
-				if (ext)
-				{
-					ext ++;
-					int i;
-
-					for (i = 0; s_file_types [i].extension; i ++)
-					{
-						if (!_stricmp (ext, s_file_types [i].extension))
-							break;
-					}
-
-					if (s_file_types [i].extension)
-					{
-						file->media_type.SetSubtype (s_file_types [i].guid);
-						file->type_known = true;
-						if (!file->unsupported)
-							(*ok_files_found) ++;
-					}
-					else
-						DbgLog ((LOG_TRACE, 2, L"Unknown file extension."));
-				}
-				else
-					DbgLog ((LOG_TRACE, 2, L"No file extension."));
 			}
 
 			if (!file->unsupported)
@@ -560,6 +541,60 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 						delete tmp;
 					}
 				}
+
+				if(!file->unsupported)
+				{
+					if(!checkFileForMediaType(file,&mediaTypeList,&mType))
+						return FALSE;		// this means out of memory
+
+					if(mType)
+					{
+#ifdef _DEBUG
+						LPOLESTR majorType,subType;
+						StringFromCLSID(mType->majorType,&majorType);
+						StringFromCLSID(mType->subType,&subType);
+						DbgLog ((LOG_TRACE, 2, L"Filetype detection determined:\nMajor type: %s\nSubtype: %s",majorType,subType));
+						CoTaskMemFree(majorType);
+						CoTaskMemFree(subType);
+#endif
+						file->media_type.SetType(&mType->majorType);
+						file->media_type.SetSubtype(&mType->subType);
+						file->type_known = true;
+						(*ok_files_found)++;
+					}
+				}
+
+				//TODO: should we fall back to extensions if automatic detection does not work ?
+				/* 
+				if(!file->type_known)
+				{
+					char *ext = strrchr (file->filename, '.');
+
+					if (ext)
+					{
+						ext ++;
+						int i;
+
+						for (i = 0; s_file_types [i].extension; i ++)
+						{
+							if (!_stricmp (ext, s_file_types [i].extension))
+								break;
+						}
+
+						if (s_file_types [i].extension)
+						{
+							file->media_type.SetSubtype (s_file_types [i].guid);
+							file->type_known = true;
+							if (!file->unsupported)
+								(*ok_files_found) ++;
+						}
+						else
+							DbgLog ((LOG_TRACE, 2, L"Unknown file extension."));
+					}
+					else
+						DbgLog ((LOG_TRACE, 2, L"No file extension."));
+				}*/
+
 
 				if (filename != file->filename)
 					delete filename;

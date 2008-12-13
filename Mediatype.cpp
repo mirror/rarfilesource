@@ -141,8 +141,6 @@ int getMediaTypeList(List<MediaType> *mediaTypeList)
 				continue;
 
 			retVal = RegOpenKey(majorTypeKey,subKeyName,&subTypeKey);
-			if(retSub!=ERROR_SUCCESS)
-				continue;
 
 			newType = new MediaType;
 			if (!newType)

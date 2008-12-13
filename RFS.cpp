@@ -736,7 +736,7 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 // Behaves like IPersistFile::Load
 STDMETHODIMP CRARFileSource::GetCurFile (LPOLESTR *ppszFileName, AM_MEDIA_TYPE *pmt)
 {
-	if (ppszFileName)
+	if (!ppszFileName)
 		return E_POINTER;
 
 	if (m_file_name != NULL)

@@ -44,7 +44,8 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 {
 	fixed_header_t fh;
 	fixed_file_header_t ffh;
-	DWORD read, acc = 0, dword;
+	DWORD read, dword;
+	LONGLONG acc = 0;
 
 	// Read fixed archive header.
 	READ_ITEM (fh);
@@ -56,16 +57,13 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 	if (fh.flags & LONG_BLOCK)
 	{
 		READ_ITEM (dword);
-
-		if ((MAXDWORD - dword) < fh.size)
-		{
-			ErrorMsg (0, L"Variable overflow while reading RAR header.");
-			return S_FALSE;
-		}
-		dest->ch.size = dword + fh.size;
+		dest->ch.size.QuadPart = (LONGLONG) dword + fh.size;
 	}
 	else
-		dest->ch.size = fh.size;
+	{
+		dest->ch.size.HighPart = 0;
+		dest->ch.size.LowPart = fh.size;
+	}
 
 	switch (fh.type)
 	{
@@ -76,7 +74,7 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 	case HEADER_TYPE_FILE:
 		READ_ITEM (ffh);
 
-		dest->fh.low_size = ffh.size;
+		dest->fh.size.LowPart = ffh.size;
 		dest->fh.os = ffh.os;
 		dest->fh.crc = ffh.crc;
 		dest->fh.timestamp = ffh.timestamp;
@@ -87,16 +85,13 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 
 		if (fh.flags & LHD_LARGE)
 		{
-			READ_ITEM (dword);
-			dest->fh.high_size = dword;
-			dest->fh.size = ((DWORD64) dword << 32) | ffh.size;
-			READ_ITEM (dword);
+			READ_ITEM (dword); // Packed size high dword
+			dest->ch.size.HighPart += dword;
+			READ_ITEM (dword); // Unpacked size high dword
+			dest->fh.size.HighPart = dword;
 		}
 		else
-		{
-			dest->fh.high_size = 0;
-			dest->fh.size = ffh.size;
-		}
+			dest->fh.size.HighPart = 0;
 
 		dest->fh.filename = new char [dest->fh.name_len + 1];
 		if (!dest->fh.filename)
@@ -136,20 +131,21 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 		}
 	}
 
-	if (acc > dest->ch.size)
+	if (acc > dest->ch.size.QuadPart)
 	{
 		ErrorMsg (0, L"Overrun while reading RAR header.");
 		return S_FALSE;
 	}
 
-	if (fh.type != HEADER_TYPE_FILE && acc < dest->ch.size)
+	if (fh.type != HEADER_TYPE_FILE && acc < dest->ch.size.QuadPart)
 	{
-		SetFilePointer (file, dest->ch.size - acc, 0, FILE_CURRENT);
-//		DbgLog ((LOG_TRACE, 2, L"Skipped over %d header bytes.", dest->ch.size - acc));
-		dest->bytesRemaining = 0;
+		LARGE_INTEGER li;
+		li.QuadPart = dest->ch.size.QuadPart - acc;
+		SetFilePointerEx (file, li, NULL, FILE_CURRENT);
+		dest->bytesRemaining.QuadPart = 0;
 	}
 	else
-		dest->bytesRemaining = dest->ch.size - acc;
+		dest->bytesRemaining.QuadPart = dest->ch.size.QuadPart - acc;
 
 	return ERROR_SUCCESS;
 }

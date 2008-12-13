@@ -60,7 +60,7 @@ typedef struct
 	WORD crc;
 	BYTE type;
 	WORD flags;
-	DWORD size;
+	LARGE_INTEGER size;
 } common_header_t;
 
 typedef struct
@@ -71,9 +71,7 @@ typedef struct
 
 typedef struct
 {
-	DWORD64 size;
-	DWORD   low_size;
-	DWORD   high_size;
+	LARGE_INTEGER size;
 
 	DWORD   crc;
 	DWORD   timestamp;
@@ -108,7 +106,7 @@ typedef struct
 		end_header_t eh;
 	};
 
-	DWORD bytesRemaining;
+	LARGE_INTEGER bytesRemaining;
 } rar_header_t;
 
 DWORD ReadHeader (HANDLE file, rar_header_t *dest);

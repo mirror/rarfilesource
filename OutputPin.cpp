@@ -275,7 +275,8 @@ STDMETHODIMP CRFSOutputPin::Request (IMediaSample* pSample, DWORD_PTR dwUser)
 	}
 
 	LARGE_INTEGER offset;
-	DWORD to_read, acc = 0, offset2;
+	DWORD to_read, acc = 0;
+	LONGLONG offset2;
 	int pos = FindStartPart (llPosition);
 
 	if (pos == -1)
@@ -294,7 +295,7 @@ STDMETHODIMP CRFSOutputPin::Request (IMediaSample* pSample, DWORD_PTR dwUser)
 
 	FilePart *part = m_file->array + pos;
 
-	offset2 = (DWORD) (llPosition - part->in_file_offset);
+	offset2 = llPosition - part->in_file_offset;
 	offset.QuadPart = part->in_rar_offset + offset2;
 
 	while (true)
@@ -310,7 +311,7 @@ STDMETHODIMP CRFSOutputPin::Request (IMediaSample* pSample, DWORD_PTR dwUser)
 		request->subreqs.InsertLast (sr);
 		request->count ++;
 
-		to_read = min (lLength, part->size - offset2);
+		to_read = min (lLength, (DWORD) (part->size - offset2));
 
 		sr->file = part->file;
 		sr->expected = to_read;
@@ -552,7 +553,8 @@ HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuff
 {
 	OVERLAPPED o;
 	LARGE_INTEGER offset;
-	DWORD to_read, read, acc = 0, offset2;
+	DWORD to_read, read, acc = 0;
+	LONGLONG offset2;
 	int pos;
 #ifdef _DEBUG
 	static int last_pos = -1;
@@ -583,7 +585,7 @@ HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuff
 #endif
 	FilePart *part = m_file->array + pos;
 
-	offset2 = (DWORD) (llPosition - part->in_file_offset);
+	offset2 = llPosition - part->in_file_offset;
 	offset.QuadPart = part->in_rar_offset + offset2;
 
 	memset (&o, 0, sizeof (o));
@@ -597,7 +599,7 @@ HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuff
 	while (true)
 	{
 		read = 0;
-		to_read = min (lLength, part->size - offset2);
+		to_read = min (lLength, (DWORD) (part->size - offset2));
 
 		o.Offset = offset.LowPart;
 		o.OffsetHigh = offset.HighPart;

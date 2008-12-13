@@ -95,8 +95,8 @@ void LogHeader (rar_header_t *rh)
 	int i;
 	WORD flags = rh->ch.flags;
 
-	DbgLog ((LOG_TRACE, 2, L"Header CRC %04x  TYPE %02x  FLAGS %04x  SIZE %08x",
-		rh->ch.crc, rh->ch.type, rh->ch.flags, rh->ch.size));
+	DbgLog ((LOG_TRACE, 2, L"Header CRC %04x  TYPE %02x  FLAGS %04x  SIZE %08x %08x",
+		rh->ch.crc, rh->ch.type, rh->ch.flags, rh->ch.size.HighPart, rh->ch.size.LowPart));
 
 	switch (rh->ch.type)
 	{

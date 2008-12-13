@@ -31,7 +31,7 @@ public:
 
 	LONGLONG in_rar_offset;
 	LONGLONG in_file_offset;
-	DWORD size;
+	LONGLONG size;
 };
 
 class File : public Node<File>

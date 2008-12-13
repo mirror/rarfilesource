@@ -228,13 +228,12 @@ STDMETHODIMP CRARFileSource::NonDelegatingQueryInterface (REFIID riid, void **pp
 
 #define HEADER_SKIP_FILE \
 	delete [] rh.fh.filename; \
-	SetFilePointer (hFile, rh.bytesRemaining, 0, FILE_CURRENT); \
+	SetFilePointerEx (hFile, rh.bytesRemaining, NULL, FILE_CURRENT); \
 	continue;
 
 int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, int *ok_files_found)
 {
 	DWORD dwBytesRead;
-	DWORD mem_offset = 0;
 	char *filename = NULL;
 	wchar_t *current_rar_filename = NULL, *rar_ext;
 	bool first_archive_file = true;
@@ -243,13 +242,14 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	BYTE marker [7];
 	BYTE expected [7] = { 0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x00 };
 	FilePart *new_part, *prev_part;
-	LONGLONG collect = 0;
+	LONGLONG collected;
 	DWORD ret;
 	DWORD files = 0, volumes = 0;
 	int volume_digits;
 	File *file = NULL;
 
 	*ok_files_found = 0;
+	LARGE_INTEGER zero = {0};
 
 	Anchor<File> af (&file);
 	ArrayAnchor<wchar_t> acrf (&current_rar_filename);
@@ -398,13 +398,13 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 			}
 			if (rh.ch.type != HEADER_TYPE_FILE)
 			{
-				SetFilePointer (hFile, rh.bytesRemaining, 0, FILE_CURRENT);
+				SetFilePointerEx (hFile, rh.bytesRemaining, NULL, FILE_CURRENT);
 				DbgLog ((LOG_TRACE, 2,L"Skipping unknown header type %02x.", rh.ch.type));
 				continue;
 			}
 
-			DbgLog ((LOG_TRACE, 2, L"SIZE %d,%d  OS %02x  CRC %08x  TIMESTAMP %08x  VERSION %d  METHOD %02x  LEN %04x  ATTRIB %08x",
-				rh.fh.low_size, rh.fh.high_size, rh.fh.os, rh.fh.crc, rh.fh.timestamp, rh.fh.version, rh.fh.method, rh.fh.name_len, rh.fh.attributes));
+			DbgLog ((LOG_TRACE, 2, L"SIZE %08x %08x  OS %02x  CRC %08x  TIMESTAMP %08x  VERSION %d  METHOD %02x  LEN %04x  ATTRIB %08x",
+				rh.fh.size.HighPart, rh.fh.size.LowPart, rh.fh.os, rh.fh.crc, rh.fh.timestamp, rh.fh.version, rh.fh.method, rh.fh.name_len, rh.fh.attributes));
 
 			DbgLog ((LOG_TRACE, 2, L"FILENAME \"%S\"", rh.fh.filename));
 
@@ -437,8 +437,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				}
 
 				files ++;
-				mem_offset = 0;
-				collect = 0;
+				collected = 0;
 
 				ASSERT (!file);
 
@@ -447,7 +446,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				file->media_type.SetType (&MEDIATYPE_Stream);
 				file->media_type.SetSubtype (&MEDIASUBTYPE_NULL);
 				file->filename = rh.fh.filename;
-				file->size = rh.fh.size;
+				file->size = rh.fh.size.QuadPart;
 				filename = rh.fh.filename;
 
 				if (rh.ch.flags & LHD_PASSWORD)
@@ -512,9 +511,9 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				}
 				prev_part = new_part;
 
-				new_part->in_rar_offset = SetFilePointer (hFile, 0, 0, FILE_CURRENT);
-				new_part->in_file_offset = mem_offset;
-				new_part->size = rh.bytesRemaining;
+				SetFilePointerEx (hFile, zero, (LARGE_INTEGER*) &new_part->in_rar_offset, FILE_CURRENT);
+				new_part->in_file_offset = collected;
+				new_part->size = rh.bytesRemaining.QuadPart;
 
 				new_part->file = CreateFile (current_rar_filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 				if (new_part->file == INVALID_HANDLE_VALUE)
@@ -524,15 +523,14 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				}
 			}
 
-			collect += rh.bytesRemaining;
-			mem_offset += rh.bytesRemaining;
-			SetFilePointer (hFile, rh.bytesRemaining, 0, FILE_CURRENT);
+			collected += rh.bytesRemaining.QuadPart;
+			SetFilePointerEx (hFile, rh.bytesRemaining, NULL, FILE_CURRENT);
 
 			// Is file complete?
 			if (!(rh.ch.flags & LHD_SPLIT_AFTER))
 			{
-				if (!file->unsupported && (file->size != collect || file->size != mem_offset))
-					DbgLog ((LOG_TRACE, 2, L"The file is not the sum of it's parts. expected = %d, actual = %d", file->size, collect));
+				if (!file->unsupported && file->size != collected)
+					DbgLog ((LOG_TRACE, 2, L"The file is not the sum of it's parts. expected = %lld, actual = %lld", file->size, collected));
 
 				if (file->parts)
 				{

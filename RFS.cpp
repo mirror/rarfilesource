@@ -296,14 +296,13 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 		if (ReadHeader (hFile, &rh))
 			return FALSE;
 
+		LOG_HEADER (&rh);
+
 		if (rh.ch.type != HEADER_TYPE_ARCHIVE)
 		{
 			ErrorMsg (0, L"Unexpected RAR header type.");
 			return FALSE;
 		}
-
-		DbgLog ((LOG_TRACE, 2, L"Header CRC %04x  TYPE %02x  FLAGS %04x  SIZE %04x",
-			rh.ch.crc, rh.ch.type, rh.ch.flags, rh.ch.size));
 
 		if (rh.ch.flags & MHD_PASSWORD)
 		{
@@ -387,8 +386,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					return FALSE;
 			}
 
-			DbgLog ((LOG_TRACE, 2, L"Header CRC %04x  TYPE %02x  FLAGS %04x  SIZE %04x",
-				rh.ch.crc, rh.ch.type, rh.ch.flags, rh.ch.size));
+			LOG_HEADER (&rh);
 
 			if (rh.ch.type == HEADER_TYPE_END)
 			{

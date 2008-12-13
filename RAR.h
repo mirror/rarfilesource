@@ -19,10 +19,13 @@
 
 #include "RAR_defines.h"
 
-#define HEADER_TYPE_MARKER	0x72
-#define HEADER_TYPE_ARCHIVE	0x73
-#define HEADER_TYPE_FILE	0x74
-#define HEADER_TYPE_END		0x7B
+#define HEADER_TYPE_MARKER		0x72
+#define HEADER_TYPE_ARCHIVE		0x73
+#define HEADER_TYPE_FILE		0x74
+#define HEADER_TYPE_SUBBLOCK	0x77
+#define HEADER_TYPE_RECOVERY	0x78
+#define HEADER_TYPE_NEWSUBLOCK	0x7a
+#define HEADER_TYPE_END			0x7b
 
 #pragma pack (push, 1)
 

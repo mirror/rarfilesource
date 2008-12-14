@@ -287,6 +287,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RFS.nsi"
+				>
+			</File>
+			<File
 				RelativePath=".\RFS.rc"
 				>
 			</File>

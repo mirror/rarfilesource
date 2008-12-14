@@ -39,8 +39,12 @@ InstallDirRegKey HKLM ${REGKEY} "InstallLocation"
 !insertmacro MUI_LANGUAGE "English"
 
 Section "Install"
-# TODO: Verify that the VC2008 redist is installed by checking DWORD key
-# HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\DevDiv\VC\Servicing\9.0\RED\1033\Install
+checkInstalled:
+	ReadRegDWORD $0 HKLM "Software\Microsoft\DevDiv\VC\Servicing\9.0\RED\1033" "Install"
+	IntCmp $0 1 redistInstalled
+	MessageBox MB_ABORTRETRYIGNORE "The Microsoft Visual C++ 2008 Redistributable Package is not installed.$\nWithout the necessary runtime DLLs the filter will not work.$\n$\nFind it at http://www.microsoft.com/downloads/ and try again." IDIGNORE redistInstalled IDRETRY checkInstalled
+	Quit
+redistInstalled:
 	SetOutPath "$INSTDIR"
 	!define LIBRARY_IGNORE_VERSION
 	!insertmacro InstallLib REGDLL NOTSHARED REBOOT_NOTPROTECTED "Release\RARFileSource.ax" "$INSTDIR\RARFileSource.ax" "$INSTDIR"

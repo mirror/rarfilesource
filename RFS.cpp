@@ -563,8 +563,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					}
 				}
 
-				//TODO: should we fall back to extensions if automatic detection does not work ?
-				/* 
+				// TODO: Figure out if checking file extensions is necessary anymore.
 				if(!file->type_known)
 				{
 					char *ext = strrchr (file->filename, '.');
@@ -592,7 +591,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					}
 					else
 						DbgLog ((LOG_TRACE, 2, L"No file extension."));
-				}*/
+				}
 
 				if (filename != file->filename)
 					delete filename;

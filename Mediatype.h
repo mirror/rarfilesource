@@ -17,7 +17,7 @@
 #ifndef MEDIATYPE_H
 #define MEDIATYPE_H
 
-#include "list.h"
+#include "List.h"
 
 class CheckByteDetails {
 public:
@@ -66,4 +66,4 @@ public:
 int getMediaTypeList(List<MediaType> *mediaTypeList);
 int checkFileForMediaType(File *file,List<MediaType> *mediaTypeList,MediaType **foundMediaType);
 
-#endif
+#endif // MEDIATYPE_H

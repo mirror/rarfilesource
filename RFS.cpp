@@ -280,7 +280,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	}
 	Anchor<HANDLE> ha(&hFile);
 
-	if(getMediaTypeList(&mediaTypeList)==-1)
+	if (getMediaTypeList (&mediaTypeList) == -1)
 		return FALSE;		// this means out of memory
 
 	// Scan through archive volume(s)
@@ -544,16 +544,16 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 
 				if(!file->unsupported)
 				{
-					if(!checkFileForMediaType(file,&mediaTypeList,&mType))
+					if (!checkFileForMediaType (file,&mediaTypeList,&mType))
 						return FALSE;		// this means out of memory
 
 					if(mType)
 					{
 #ifdef _DEBUG
-						LPOLESTR majorType,subType;
-						StringFromCLSID(mType->majorType,&majorType);
-						StringFromCLSID(mType->subType,&subType);
-						DbgLog ((LOG_TRACE, 2, L"Filetype detection determined:\nMajor type: %s\nSubtype: %s",majorType,subType));
+						LPOLESTR majorType, subType;
+						StringFromCLSID (mType->majorType, &majorType);
+						StringFromCLSID (mType->subType, &subType);
+						DbgLog ((LOG_TRACE, 2, L"Filetype detection determined:\nMajor type: %s\nSubtype: %s", majorType, subType));
 						CoTaskMemFree(majorType);
 						CoTaskMemFree(subType);
 #endif
@@ -594,7 +594,6 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					else
 						DbgLog ((LOG_TRACE, 2, L"No file extension."));
 				}*/
-
 
 				if (filename != file->filename)
 					delete filename;

@@ -42,7 +42,8 @@ private:
 template <class T> class List
 {
 public:
-	List (void) : anchor (&anchor, &anchor) { }
+	List (bool auto_clear = false) : anchor (&anchor, &anchor), clear (auto_clear) { }
+	~List() { if (clear) Clear (); }
 
 	bool IsEmpty (void) { return anchor.next == &anchor; }
 
@@ -62,6 +63,7 @@ public:
 
 private:
 	Node<T> anchor;
+	bool clear;
 };
 
 #include "List.cpp"

@@ -252,7 +252,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	LARGE_INTEGER zero = {0};
 
 	MediaType *mType;
-	List<MediaType> mediaTypeList;
+	List<MediaType> mediaTypeList(true);
 
 	Anchor<File> af (&file);
 	ArrayAnchor<wchar_t> acrf (&current_rar_filename);

@@ -53,7 +53,7 @@ static void getNextToken(wchar_t **strTok,wchar_t **nextTokenStart)
    checkBytes array (allocated here) */
 static int parseCheckBytes(wchar_t *valueData,CheckByteDetails **checkBytes)
 {
-	int tokenCount=0,byteDetailsCount=0;
+	int tokenCount=0,byteDetailsCount=0, value;
 	wchar_t *token,*nextTokenStart;
 	for(int i=0;i<lstrlen(valueData);i++)
 		if(valueData[i]==TEXT(','))
@@ -91,12 +91,20 @@ static int parseCheckBytes(wchar_t *valueData,CheckByteDetails **checkBytes)
 			for(unsigned int j=0;j<(*checkBytes)[i].byteCount;j++)
 				(*checkBytes)[i].mask[j]=0xFF;
 		else																		// otherwise parse mask
+		{
 			for(unsigned int j=0;j<(*checkBytes)[i].byteCount && j*2 < lstrlen(token);j++)
-				swscanf_s(token+j*2,TEXT(" %2x"),&(*checkBytes)[i].mask[j]);
+			{
+				swscanf_s(token+j*2,TEXT(" %2x"),&value);
+				(*checkBytes)[i].mask[j] = value;
+			}
+		}
 		token=nextTokenStart;
 		getNextToken(&token,&nextTokenStart);
 		for(unsigned int j=0;j<(*checkBytes)[i].byteCount && j*2 < lstrlen(token);j++)
-			swscanf_s(token+j*2,TEXT(" %2x"),&(*checkBytes)[i].value[j]);			// parse value
+		{
+			swscanf_s(token+j*2,TEXT(" %2x"),&value);			// parse value
+			(*checkBytes)[i].value[j] = value;
+		}
 	}
 	return byteDetailsCount;
 }
@@ -120,7 +128,6 @@ int getMediaTypeList(List<MediaType> *mediaTypeList)
 	int mediaTypeCount=0;
 	MediaType *newType;
 	CheckByteGroup *newGroup;
-	
 
 	ret = RegOpenKey(HKEY_CLASSES_ROOT,TEXT("Media Type"),&mTypeKey);
 	if(ret!=ERROR_SUCCESS)

@@ -39,11 +39,43 @@ InstallDirRegKey HKLM ${REGKEY} "InstallLocation"
 !insertmacro MUI_LANGUAGE "English"
 
 Section "Install"
+
 checkInstalled:
+	StrCpy $2 'Microsoft.VC90.CRT,version="9.0.21022.8",type="win32",processorArchitecture="x86",publicKeyToken="1fc8b3b9a1e18e3b"'
+
+	System::Call 'sxs::CreateAssemblyCache(*i .R0, i 0) i .r0'
+	IntCmp $0 0 cacOK checkRegistry checkRegistry
+
+cacOK:
+	# Allocate ASSEMBLY_INFO struct
+	System::Call '*(i 24, i 0, l, i 0, i 0) i .R1'
+	IntCmp $R1 0 checkRegistry
+
+	# IAssemblyCache::QueryAssemblyInfo
+	System::Call "$R0->4(i 0, w '$2', i $R1) i .r0"
+	IntCmp $0 0 qaiOK freeMemErr freeMemErr
+
+qaiOK:
+	# Extract ASSEMBLY_INFO.dwAssemblyFlags
+	System::Call '*$R1(i, i .r0)'
+
+	# Test ASSEMBLYINFO_FLAG_INSTALLED
+	IntOp $0 $0 & 1
+	IntCmp $0 1 freeMem freeMemErr freeMemErr
+
+freeMem:
+	System::Free $R1
+	Goto redistInstalled
+
+freeMemErr:
+	System::Free $R1
+
+checkRegistry:
 	ReadRegDWORD $0 HKLM "Software\Microsoft\DevDiv\VC\Servicing\9.0\RED\1033" "Install"
 	IntCmp $0 1 redistInstalled
 	MessageBox MB_ABORTRETRYIGNORE "The Microsoft Visual C++ 2008 Redistributable Package is not installed.$\nWithout the necessary runtime DLLs the filter will not work.$\n$\nFind it at http://www.microsoft.com/downloads/ and try again." IDIGNORE redistInstalled IDRETRY checkInstalled
 	Quit
+
 redistInstalled:
 	SetOutPath "$INSTDIR"
 	!define LIBRARY_IGNORE_VERSION

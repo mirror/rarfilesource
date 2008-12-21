@@ -558,7 +558,9 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 						LPOLESTR majorType, subType;
 						StringFromCLSID (mType->majorType, &majorType);
 						StringFromCLSID (mType->subType, &subType);
-						DbgLog ((LOG_TRACE, 2, L"Filetype detection determined:\nMajor type: %s\nSubtype: %s", majorType, subType));
+						DbgLog ((LOG_TRACE, 2, L"Filetype detection determined:"));
+						DbgLog ((LOG_TRACE, 2, L"  Major type: %s", majorType));
+						DbgLog ((LOG_TRACE, 2, L"  Subtype: %s", subType));
 						CoTaskMemFree(majorType);
 						CoTaskMemFree(subType);
 #endif

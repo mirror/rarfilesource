@@ -414,6 +414,12 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 
 			DbgLog ((LOG_TRACE, 2, L"FILENAME \"%S\"", rh.fh.filename));
 
+			if ((rh.ch.flags & LHD_WINDOWMASK) == LHD_DIRECTORY)
+			{
+				DbgLog ((LOG_TRACE, 2, L"Skipping directory."));
+				HEADER_SKIP_FILE
+			}
+
 			if (filename)
 			{
 				if (strcmp (filename, rh.fh.filename))

@@ -573,7 +573,7 @@ HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuff
 	if (pos == -1)
 	{
 		DbgLog((LOG_TRACE, 2, L"FindStartPart bailed length = %lu, pos = %lld", lLength, llPosition));
-		return ERROR_HANDLE_EOF;
+		return S_FALSE;
 	}
 
 #ifdef _DEBUG
@@ -593,7 +593,7 @@ HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuff
 	if (!(o.hEvent = CreateEvent (NULL, FALSE, FALSE, NULL)))
 	{
 		ErrorMsg (GetLastError (), L"CRFSOutputPin::SyncRead - CreateEvent)");
-		return (S_FALSE);
+		return S_FALSE;
 	}
 
 	while (true)

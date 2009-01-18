@@ -33,7 +33,6 @@
 // used to cast LONGLONG to LARGE_INTEGER
 #define CAST_LARGE_INTEGER(X) (*(LARGE_INTEGER *)&(X))
 
-static HRESULT SyncRead (File *file, LONGLONG llPosition, DWORD lLength, BYTE* pBuffer, LONG *cbActual);
 
 /* getNextToken extracts the current token from the string and 
    and sets the starting point of the next token */
@@ -249,7 +248,7 @@ int checkFileForMediaType(File *file,List<MediaType> *mediaTypeList,MediaType **
 					return 0;
 				}
 				// read the necessary amount of bytes to compare to value (after masking)
-				ret = SyncRead(file,actOffset,cbg->checkBytes[i].byteCount,necessaryBytes,&lBytesRead);
+				ret = file->SyncRead(actOffset,cbg->checkBytes[i].byteCount,necessaryBytes,&lBytesRead);
 				if(ret != S_OK) {
 					matches = false;
 					delete [] necessaryBytes;
@@ -277,105 +276,4 @@ int checkFileForMediaType(File *file,List<MediaType> *mediaTypeList,MediaType **
 	}
 	*foundMediaType = NULL;
 	return 1;
-}
-
-/* the next functions are copied from Outputpin.cpp with a few small modifications
-   - they should probably merged to reduce redundancy but I didn't want to change too much
-   of your classes */
-
-static HRESULT SyncRead (File *file, LONGLONG llPosition, DWORD lLength, BYTE* pBuffer, LONG *cbActual)
-{
-	OVERLAPPED o;
-	LARGE_INTEGER offset;
-	DWORD to_read, read, acc = 0;
-	LONGLONG offset2;
-	int pos;
-#ifdef _DEBUG
-	static int last_pos = -1;
-#endif
-
-	if (!file)
-	{
-		DbgLog((LOG_TRACE, 2, L"Mediatype.cpp - SyncRead called with no file loaded."));
-		return E_UNEXPECTED;
-	}
-
-	if (!pBuffer)
-		return E_POINTER;
-
-	pos = file->FindStartPart (llPosition);
-	if (pos == -1)
-	{
-		DbgLog((LOG_TRACE, 2, L"Mediatype.cpp - FindStartPart bailed length = %lu, pos = %lld", lLength, llPosition));
-		return ERROR_HANDLE_EOF;
-	}
-
-#ifdef _DEBUG
-	if (pos != last_pos)
-	{
-		DbgLog((LOG_TRACE, 2, L"Mediatype.cpp - Now reading volume %d.", pos));
-		last_pos = pos;
-	}
-#endif
-	FilePart *part = file->array + pos;
-
-	offset2 = llPosition - part->in_file_offset;
-	offset.QuadPart = part->in_rar_offset + offset2;
-
-	memset (&o, 0, sizeof (o));
-
-	if (!(o.hEvent = CreateEvent (NULL, FALSE, FALSE, NULL)))
-	{
-		ErrorMsg (GetLastError (), L"Mediatype.cpp - SyncRead - CreateEvent)");
-		return (S_FALSE);
-	}
-
-	while (true)
-	{
-		read = 0;
-		to_read = min (lLength, part->size - offset2);
-
-		o.Offset = offset.LowPart;
-		o.OffsetHigh = offset.HighPart;
-
-		if (!ReadFile (part->file, pBuffer + acc, to_read, NULL, &o))
-		{
-			DWORD err = GetLastError ();
-
-			if (err != ERROR_IO_PENDING)
-			{
-				ErrorMsg (err, L"Mediatype.cpp - SyncRead - ReadFile");
-				break;
-			}
-		}
-		if (!GetOverlappedResult (part->file, &o, &read, TRUE))
-		{
-			ErrorMsg (GetLastError (), L"Mediatype.cpp - SyncRead - GetOverlappedResult)");
-			break;
-		}
-		lLength -= read;
-		acc += read;
-
-		if (lLength == 0)
-		{
-			CloseHandle (o.hEvent);
-			if (cbActual)
-				*cbActual = acc;
-			return S_OK;
-		}
-
-		pos ++;
-
-		if (pos >= file->parts)
-			break;
-
-		part ++;
-		offset2 = 0;
-		offset.QuadPart = part->in_rar_offset;
-	}
-
-	CloseHandle (o.hEvent);
-	if (cbActual)
-		*cbActual = acc;
-	return S_FALSE;
 }

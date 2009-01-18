@@ -517,7 +517,7 @@ STDMETHODIMP CRFSOutputPin::SyncReadAligned (IMediaSample* pSample)
 
 	if (!m_file)
 	{
-		DbgLog((LOG_TRACE, 2, L"SyncRead called with no file loaded."));
+		DbgLog((LOG_TRACE, 2, L"SyncReadAligned called with no file loaded."));
 		return E_UNEXPECTED;
 	}
 
@@ -535,7 +535,7 @@ STDMETHODIMP CRFSOutputPin::SyncReadAligned (IMediaSample* pSample)
 
 	LONG cbActual = 0;
 
-	hr = SyncRead (llPosition, lLength, pBuffer, &cbActual);
+	hr = m_file->SyncRead (llPosition, lLength, pBuffer, &cbActual);
 
 	pSample->SetActualDataLength (cbActual);
 
@@ -544,107 +544,16 @@ STDMETHODIMP CRFSOutputPin::SyncReadAligned (IMediaSample* pSample)
 
 STDMETHODIMP CRFSOutputPin::SyncRead (LONGLONG llPosition, LONG lLength, BYTE* pBuffer)
 {
-	if (lLength < 0)
-		return E_UNEXPECTED;
-
-	return SyncRead (llPosition, lLength, pBuffer, NULL);
-}
-
-HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuffer, LONG *cbActual)
-{
-	OVERLAPPED o;
-	LARGE_INTEGER offset;
-	DWORD to_read, read, acc = 0;
-	LONGLONG offset2;
-	int pos;
-#ifdef _DEBUG
-	static int last_pos = -1;
-#endif
-
 	if (!m_file)
 	{
 		DbgLog((LOG_TRACE, 2, L"SyncRead called with no file loaded."));
 		return E_UNEXPECTED;
 	}
 
-	if (!pBuffer)
-		return E_POINTER;
+	if (lLength < 0)
+		return E_UNEXPECTED;
 
-	pos = m_file->FindStartPart (llPosition);
-	if (pos == -1)
-	{
-		DbgLog((LOG_TRACE, 2, L"FindStartPart bailed length = %lu, pos = %lld", lLength, llPosition));
-		return S_FALSE;
-	}
-
-#ifdef _DEBUG
-	if (pos != last_pos)
-	{
-		DbgLog((LOG_TRACE, 2, L"Now reading volume %d.", pos));
-		last_pos = pos;
-	}
-#endif
-	FilePart *part = m_file->array + pos;
-
-	offset2 = llPosition - part->in_file_offset;
-	offset.QuadPart = part->in_rar_offset + offset2;
-
-	memset (&o, 0, sizeof (o));
-
-	if (!(o.hEvent = CreateEvent (NULL, FALSE, FALSE, NULL)))
-	{
-		ErrorMsg (GetLastError (), L"CRFSOutputPin::SyncRead - CreateEvent)");
-		return S_FALSE;
-	}
-
-	while (true)
-	{
-		read = 0;
-		to_read = min (lLength, (DWORD) (part->size - offset2));
-
-		o.Offset = offset.LowPart;
-		o.OffsetHigh = offset.HighPart;
-
-		if (!ReadFile (part->file, pBuffer + acc, to_read, NULL, &o))
-		{
-			DWORD err = GetLastError ();
-
-			if (err != ERROR_IO_PENDING)
-			{
-				ErrorMsg (err, L"CRFSOutputPin::SyncRead - ReadFile");
-				break;
-			}
-		}
-		if (!GetOverlappedResult (part->file, &o, &read, TRUE))
-		{
-			ErrorMsg (GetLastError (), L"CRFSOutputPin::SyncRead - GetOverlappedResult)");
-			break;
-		}
-		lLength -= read;
-		acc += read;
-
-		if (lLength == 0)
-		{
-			CloseHandle (o.hEvent);
-			if (cbActual)
-				*cbActual = acc;
-			return S_OK;
-		}
-
-		pos ++;
-
-		if (pos >= m_file->parts)
-			break;
-
-		part ++;
-		offset2 = 0;
-		offset.QuadPart = part->in_rar_offset;
-	}
-
-	CloseHandle (o.hEvent);
-	if (cbActual)
-		*cbActual = acc;
-	return S_FALSE;
+	return m_file->SyncRead (llPosition, lLength, pBuffer, NULL);
 }
 
 STDMETHODIMP CRFSOutputPin::Length (LONGLONG *pTotal, LONGLONG *pAvailable)

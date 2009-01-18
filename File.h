@@ -55,6 +55,7 @@ public:
 	}
 
 	int FindStartPart (LONGLONG position);
+	HRESULT SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuffer, LONG *cbActual);
 
 	CMediaType media_type;
 	LONGLONG size;

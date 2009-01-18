@@ -96,7 +96,6 @@ private:
 	List<ReadRequest> m_requests;
 	CCritSec m_lock;
 
-	HRESULT SyncRead (LONGLONG llPosition, DWORD lLength, BYTE *pBuffer, LONG *cbActual);
 	HRESULT ConvertSample (IMediaSample *sample, LONGLONG *pos, DWORD *length, BYTE **buffer);
 	HRESULT DoFlush (IMediaSample **ppSample, DWORD_PTR *pdwUser);
 

@@ -628,6 +628,9 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 		hFile = CreateFile (current_rar_filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 		if (hFile == INVALID_HANDLE_VALUE) 
 		{
+			if (!file)
+				break;
+
 			ErrorMsg (GetLastError (), L"Could not open file \"%s\".", current_rar_filename);
 			return FALSE;
 		}

@@ -25,6 +25,7 @@
 #include "Anchor.h"
 #include "resource.h"
 #include "Mediatype.h"
+#include "File.h"
 
 
 // {9FFE11D2-29F2-463f-AD5F-C04A5EE2E58D}

@@ -84,7 +84,7 @@ public:
 	STDMETHODIMP BeginFlush (void);
 	STDMETHODIMP EndFlush (void);
 
-	void SetFile (File *file) { m_file = file; m_prev_part = NULL; }
+	void SetFile (File *file) { m_file = file; }
 
 private:
 	DWORD m_align;
@@ -92,14 +92,12 @@ private:
 	File *m_file;
 	BOOL m_flush;
 	HANDLE m_event;
-	FilePart *m_prev_part;
 
 	List<ReadRequest> m_requests;
 	CCritSec m_lock;
 
 	HRESULT SyncRead (LONGLONG llPosition, DWORD lLength, BYTE *pBuffer, LONG *cbActual);
 	HRESULT ConvertSample (IMediaSample *sample, LONGLONG *pos, DWORD *length, BYTE **buffer);
-	int FindStartPart (LONGLONG position);
 	HRESULT DoFlush (IMediaSample **ppSample, DWORD_PTR *pdwUser);
 
 	BOOL IsAligned (DWORD l) { return !(l & (m_align - 1)); }

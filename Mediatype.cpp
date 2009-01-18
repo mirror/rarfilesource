@@ -28,6 +28,7 @@
 #include "Utils.h"
 #include "RFS.h"
 #include "Mediatype.h"
+#include "File.h"
 
 // used to cast LONGLONG to LARGE_INTEGER
 #define CAST_LARGE_INTEGER(X) (*(LARGE_INTEGER *)&(X))
@@ -282,32 +283,6 @@ int checkFileForMediaType(File *file,List<MediaType> *mediaTypeList,MediaType **
    - they should probably merged to reduce redundancy but I didn't want to change too much
    of your classes */
 
-static int compare (const void *pos, const void *part)
-{
-	if (*((LONGLONG *) pos) < ((FilePart *) part)->in_file_offset)
-		return -1;
-
-	if (*((LONGLONG *) pos) >= ((FilePart *) part)->in_file_offset + ((FilePart *) part)->size)
-		return 1;
-
-	return 0;
-}
-
-static int FindStartPart (File *file,LONGLONG position)
-{
-	FilePart *part;
-
-	if (position > file->size)
-		return -1;
-
-	part = (FilePart *) bsearch (&position, file->array, file->parts, sizeof (FilePart), compare);
-
-	if (!part)
-		return -1;
-
-	return (int) (part - file->array);
-}
-
 static HRESULT SyncRead (File *file, LONGLONG llPosition, DWORD lLength, BYTE* pBuffer, LONG *cbActual)
 {
 	OVERLAPPED o;
@@ -328,7 +303,7 @@ static HRESULT SyncRead (File *file, LONGLONG llPosition, DWORD lLength, BYTE* p
 	if (!pBuffer)
 		return E_POINTER;
 
-	pos = FindStartPart (file,llPosition);
+	pos = file->FindStartPart (llPosition);
 	if (pos == -1)
 	{
 		DbgLog((LOG_TRACE, 2, L"Mediatype.cpp - FindStartPart bailed length = %lu, pos = %lld", lLength, llPosition));

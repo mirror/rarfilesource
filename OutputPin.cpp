@@ -21,6 +21,7 @@
 #include "RFS.h"
 #include "Utils.h"
 #include "Anchor.h"
+#include "File.h"
 
 
 CRFSOutputPin::CRFSOutputPin (CRARFileSource *pFilter, CCritSec *pLock, HRESULT *phr) :
@@ -277,7 +278,7 @@ STDMETHODIMP CRFSOutputPin::Request (IMediaSample* pSample, DWORD_PTR dwUser)
 	LARGE_INTEGER offset;
 	DWORD to_read, acc = 0;
 	LONGLONG offset2;
-	int pos = FindStartPart (llPosition);
+	int pos = m_file->FindStartPart (llPosition);
 
 	if (pos == -1)
 		return S_FALSE;
@@ -569,7 +570,7 @@ HRESULT CRFSOutputPin::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuff
 	if (!pBuffer)
 		return E_POINTER;
 
-	pos = FindStartPart (llPosition);
+	pos = m_file->FindStartPart (llPosition);
 	if (pos == -1)
 	{
 		DbgLog((LOG_TRACE, 2, L"FindStartPart bailed length = %lu, pos = %lld", lLength, llPosition));
@@ -668,38 +669,9 @@ STDMETHODIMP CRFSOutputPin::BeginFlush (void)
 	return S_OK;
 }
 
-
 STDMETHODIMP CRFSOutputPin::EndFlush (void)
 {
 	DbgLog ((LOG_TRACE, 2, L"CRFSOutputPin::EndFlush"));
 	m_flush = FALSE;
 	return S_OK;
-}
-
-static int compare (const void *pos, const void *part)
-{
-	if (*((LONGLONG *) pos) < ((FilePart *) part)->in_file_offset)
-		return -1;
-
-	if (*((LONGLONG *) pos) >= ((FilePart *) part)->in_file_offset + ((FilePart *) part)->size)
-		return 1;
-
-	return 0;
-}
-
-int CRFSOutputPin::FindStartPart (LONGLONG position)
-{
-	if (position > m_file->size)
-		return -1;
-
-	// Check if the previous lookup up still matches.
-	if (m_prev_part && !compare (&position, m_prev_part))
-		return (int) (m_prev_part - m_file->array);
-
-	m_prev_part = (FilePart *) bsearch (&position, m_file->array, m_file->parts, sizeof (FilePart), compare);
-
-	if (!m_prev_part)
-		return -1;
-
-	return (int) (m_prev_part - m_file->array);
 }

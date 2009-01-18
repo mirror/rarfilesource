@@ -19,53 +19,6 @@
 
 #include "OutputPin.h"
 
-class FilePart
-{
-public:
-	FilePart (void) : next (NULL), file (INVALID_HANDLE_VALUE),
-		in_rar_offset (0), in_file_offset (0), size (0) { }
-	~FilePart (void) { if (file != INVALID_HANDLE_VALUE) CloseHandle (file); }
-
-	FilePart *next;
-
-	HANDLE file;
-
-	LONGLONG in_rar_offset;
-	LONGLONG in_file_offset;
-	LONGLONG size;
-};
-
-class File : public Node<File>
-{
-public:
-	File (void) : size (0), parts (0), list (NULL), array (NULL), filename(NULL),
-		type_known (false), unsupported(false) { }
-
-	~File (void)
-	{
-		FilePart *fp = list;
-		while (fp)
-		{
-			FilePart *tmp = fp;
-			fp = fp->next;
-			delete tmp;
-		}
-		delete [] array;
-		delete [] filename;
-	}
-
-	CMediaType media_type;
-	LONGLONG size;
-	int parts;
-
-	FilePart *list;
-	FilePart *array;
-
-	char *filename;
-	bool type_known;
-	bool unsupported;
-};
-
 typedef struct
 {
 	const char *extension;

@@ -19,14 +19,16 @@
 
 #include "List.h"
 
-class CheckByteDetails {
+class CheckByteDetails
+{
 public:
-	CheckByteDetails():offset(0),byteCount(0),mask(NULL),value(NULL) {}
-	~CheckByteDetails() 
+	CheckByteDetails () : offset (0), byteCount (0), mask (NULL), value (NULL) { }
+
+	~CheckByteDetails ()
 	{
-		if(mask)
+		if (mask)
 			delete [] mask;
-		if(value)
+		if (value)
 			delete [] value;
 	}
 
@@ -36,12 +38,14 @@ public:
 	BYTE *value;
 };
 
-class CheckByteGroup : public Node<CheckByteGroup> {
+class CheckByteGroup : public Node<CheckByteGroup>
+{
 public:
-	CheckByteGroup(): checkBytes(NULL),checkByteCount(0) {}
-	~CheckByteGroup()
+	CheckByteGroup () : checkBytes (NULL), checkByteCount (0) { }
+
+	~CheckByteGroup ()
 	{
-		if(checkBytes)
+		if (checkBytes)
 			delete [] checkBytes;
 	}
 
@@ -49,12 +53,14 @@ public:
 	unsigned int checkByteCount;
 };
 
-class MediaType: public Node<MediaType> {
+class MediaType : public Node<MediaType>
+{
 public:
-	MediaType(): majorType(GUID_NULL),subType(GUID_NULL),checkByteGroupCount(0) {}
-	~MediaType()
+	MediaType () : majorType (GUID_NULL), subType (GUID_NULL), checkByteGroupCount (0) { }
+
+	~MediaType ()
 	{
-		checkByteGroups.Clear();
+		checkByteGroups.Clear ();
 	}
 
 	GUID majorType;
@@ -63,7 +69,7 @@ public:
 	unsigned int checkByteGroupCount;
 };
 
-int getMediaTypeList(List<MediaType> *mediaTypeList);
-int checkFileForMediaType(File *file,List<MediaType> *mediaTypeList,MediaType **foundMediaType);
+int getMediaTypeList (List<MediaType> *mediaTypeList);
+int checkFileForMediaType (File *file, List<MediaType> *mediaTypeList, MediaType **foundMediaType);
 
 #endif // MEDIATYPE_H

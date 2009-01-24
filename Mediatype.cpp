@@ -30,9 +30,6 @@
 #include "Mediatype.h"
 #include "File.h"
 
-// used to cast LONGLONG to LARGE_INTEGER
-#define CAST_LARGE_INTEGER(X) (*(LARGE_INTEGER *)&(X))
-
 
 /* getNextToken extracts the current token from the string and 
    and sets the starting point of the next token */

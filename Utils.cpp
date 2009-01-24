@@ -25,13 +25,13 @@ void ErrorMsg (DWORD errorCode, wchar_t *format, ...)
 	wchar_t buffer [1024];
 	wchar_t *end;
 	size_t remaining;
-    va_list argptr;
+	va_list argptr;
 
 //	__asm int 3;
 
-    va_start (argptr, format);
+	va_start (argptr, format);
 	StringCchVPrintfEx (buffer, 1024, &end, &remaining, 0, format, argptr);
-    va_end (argptr);
+	va_end (argptr);
 
 	if (errorCode && remaining > 9)
 	{

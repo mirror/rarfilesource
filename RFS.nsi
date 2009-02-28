@@ -17,7 +17,7 @@
 !include MUI2.nsh
 !include Library.nsh
 
-!define VERSION "v0.9"
+!define VERSION "v0.9.1"
 
 Name "RAR File Source"
 OutFile "RARFileSource-${VERSION}.exe"

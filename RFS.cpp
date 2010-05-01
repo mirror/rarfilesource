@@ -398,8 +398,8 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 			if (rh.ch.type == HEADER_TYPE_END)
 			{
 				// TODO: Verify that the volume number in the header matches our volume counter.
-				if (!(rh.ch.flags & EARC_NEXT_VOLUME))
-					multi_volume = false;
+
+				// Check for EARC_NEXT_VOLUME removed as this flag is missing on some archives.
 
 				break;
 			}

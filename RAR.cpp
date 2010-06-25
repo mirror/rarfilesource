@@ -20,24 +20,15 @@
 #include "rar.h"
 #include "utils.h"
 
-#define READ_ITEM(item) { \
-	if (!ReadFile (file, &item, sizeof (item), &read, NULL) || read != sizeof (item)) \
-	{ \
-		DWORD err = GetLastError (); \
-		if (!read && !err) return ERROR_HANDLE_EOF; \
-		ErrorMsg (err, L"Could not read RAR header"); \
-		return S_FALSE; \
-	} \
-	acc += read; }
+#define READ_ITEM(item) READ_ITEM2(&item, sizeof(item))
 
 #define READ_ITEM2(item, size) { \
-	if (!ReadFile (file, item, size, &read, NULL) || read != size) \
+	if (!ReadFile (file, item, size, &read, NULL)) \
 	{ \
-		DWORD err = GetLastError (); \
-		if (!read && !err) return ERROR_HANDLE_EOF; \
-		ErrorMsg (err, L"Could not read RAR header"); \
+		ErrorMsg (GetLastError (), L"Could not read RAR header"); \
 		return S_FALSE; \
 	} \
+	if (read < size) return ERROR_HANDLE_EOF; \
 	acc += read; }
 
 DWORD ReadHeader (HANDLE file, rar_header_t *dest)

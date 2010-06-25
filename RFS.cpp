@@ -321,8 +321,8 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 		{
 			first_archive_file = false;
 
-			new_numbering = rh.ch.flags & MHD_NEWNUMBERING;
-			multi_volume = rh.ch.flags & MHD_VOLUME;
+			new_numbering = !!(rh.ch.flags & MHD_NEWNUMBERING);
+			multi_volume = !!(rh.ch.flags & MHD_VOLUME);
 
 			if (multi_volume)
 			{
@@ -377,7 +377,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 		}
 		else
 		{
-			ASSERT (new_numbering == (bool) (rh.ch.flags & MHD_NEWNUMBERING));
+			ASSERT (new_numbering == !!(rh.ch.flags & MHD_NEWNUMBERING));
 			ASSERT (rh.ch.flags & MHD_VOLUME);
 		}
 

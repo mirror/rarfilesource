@@ -99,9 +99,7 @@ private:
 	HRESULT ConvertSample (IMediaSample *sample, LONGLONG *pos, DWORD *length, BYTE **buffer);
 	HRESULT DoFlush (IMediaSample **ppSample, DWORD_PTR *pdwUser);
 
-	BOOL IsAligned (DWORD l) { return !(l & (m_align - 1)); }
-	BOOL IsAligned (LONGLONG l) { return IsAligned ((DWORD) l); }
-	BOOL IsAligned (INT_PTR l) { return IsAligned ((DWORD) l); }
+	BOOL IsAligned (INT_PTR l) { return !(l & (m_align - 1)); }
 };
 
 #endif // OUTPUT_PIN_H

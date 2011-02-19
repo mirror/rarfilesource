@@ -654,7 +654,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 }
 
 /* static */
-int CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int index;
 
@@ -672,7 +672,7 @@ int CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam
 			if (file->unsupported)
 				continue;
 
-			len = strlen (file->filename) + 1;
+			len = (int) strlen (file->filename) + 1;
 			tempString = new wchar_t [len];
 			MultiByteToWideChar (CP_ACP, 0, file->filename, -1, tempString, len);
 			index = ListBox_AddString (GetDlgItem (hwndDlg, IDC_FILELIST), tempString);

@@ -50,7 +50,7 @@ private:
 	~CRARFileSource ();
 
 	int ScanArchive (wchar_t *archive_name, List<File> *file_list, int *known_files_found);
-	static int CALLBACK DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static INT_PTR CALLBACK DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	CRFSOutputPin m_pin;
 	CCritSec m_lock;

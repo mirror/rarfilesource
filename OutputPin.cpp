@@ -268,7 +268,7 @@ STDMETHODIMP CRFSOutputPin::Request (IMediaSample* pSample, DWORD_PTR dwUser)
 	if (FAILED (hr))
 		return hr;
 
-	if(!(IsAligned (llPosition) && IsAligned (lLength) && IsAligned ((INT_PTR) pBuffer)))
+	if(!(IsAligned ((INT_PTR) llPosition) && IsAligned ((INT_PTR) lLength) && IsAligned ((INT_PTR) pBuffer)))
 	{
 		DbgLog((LOG_TRACE, 2, L"SyncReadAligned bad alignment. align = %lu, pos = %lld, len = %lu, buf = %p",
 			m_align, llPosition, lLength, pBuffer));
@@ -526,7 +526,7 @@ STDMETHODIMP CRFSOutputPin::SyncReadAligned (IMediaSample* pSample)
 	if (FAILED (hr))
 		return hr;
 
-	if(!(IsAligned (llPosition) && IsAligned (lLength) && IsAligned ((INT_PTR) pBuffer)))
+	if(!(IsAligned ((INT_PTR) llPosition) && IsAligned ((INT_PTR) lLength) && IsAligned ((INT_PTR) pBuffer)))
 	{
 		DbgLog((LOG_TRACE, 2, L"SyncReadAligned bad alignment. align = %lu, pos = %lld, len = %lu, buf = %p",
 			m_align, llPosition, lLength, pBuffer));

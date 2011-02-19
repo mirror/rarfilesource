@@ -2,11 +2,11 @@
 Building from source
 --------------------
 
-Building RARFileSource requires Visual Studio 2008, the DirectShow SDK and the
+Building RARFileSource requires Visual Studio 2010, the DirectShow SDK and the
 DirectShow Base Classes.
 
 The DirectShow SDK and Base Classes are part of the Windows SDK, which can be
-found here: http://msdn.microsoft.com/en-us/windowsvista/bb980924.aspx
+found here: http://msdn.microsoft.com/en-us/windows/bb980924.aspx
 
 Instructions on how to build and use the Base Classes can be found here:
 http://msdn.microsoft.com/en-us/library/ms783325(VS.85).aspx

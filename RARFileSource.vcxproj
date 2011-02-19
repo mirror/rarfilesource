@@ -226,6 +226,8 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="COPYING.txt" />
+    <None Include="README.txt" />
     <None Include="RFS.def" />
     <None Include="RFS.nsi" />
   </ItemGroup>

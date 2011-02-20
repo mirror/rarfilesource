@@ -90,6 +90,7 @@ SectionEnd
 Function ComponentsPre
 	${IfNot} ${RunningX64}
 		!insertmacro UnselectSection ${SEC_X64}
+		StrCpy $INSTDIR "$PROGRAMFILES\RARFileSource"
 		Abort
 	${EndIf}
 FunctionEnd

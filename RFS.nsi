@@ -80,6 +80,7 @@ Section "-Uninstaller"
 	WriteRegStr HKLM ${REGKEY} "DisplayVersion" "${VERSION}"
 	WriteRegStr HKLM ${REGKEY} "HelpLink" "http://www.v12pwr.com/RARFileSource/"
 	WriteRegStr HKLM ${REGKEY} "InstallLocation" "$INSTDIR"
+	WriteRegStr HKLM ${REGKEY} "Publisher" "OctaneSnail"
 	WriteRegStr HKLM ${REGKEY} "UninstallString" "$INSTDIR\Uninstall.exe"
 	WriteRegStr HKLM ${REGKEY} "URLInfoAbout" "http://www.v12pwr.com/RARFileSource/"
 	WriteRegDWORD HKLM ${REGKEY} "NoModify" 1

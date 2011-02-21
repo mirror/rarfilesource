@@ -18,7 +18,7 @@
 !include Library.nsh
 !include x64.nsh
 
-!define VERSION "v0.9.1"
+!define VERSION "v0.9.2"
 
 Name "RAR File Source"
 OutFile "RARFileSource-${VERSION}.exe"

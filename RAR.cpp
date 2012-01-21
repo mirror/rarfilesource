@@ -47,10 +47,6 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 
 	switch (fh.type)
 	{
-	case HEADER_TYPE_ARCHIVE:
-		// Don't bother reading the reserved values.
-		break;
-
 	case HEADER_TYPE_FILE:
 		READ_ITEM (ffh);
 

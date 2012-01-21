@@ -41,6 +41,7 @@ typedef struct
 
 typedef struct
 {
+	DWORD packedSize;
 	DWORD size;
 	BYTE  os;
 	DWORD crc;

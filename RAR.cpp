@@ -45,17 +45,6 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 	dest->ch.flags = fh.flags;
 	dest->ch.type = fh.type;
 
-	if (fh.flags & LONG_BLOCK)
-	{
-		READ_ITEM (dword);
-		dest->ch.size.QuadPart = (LONGLONG) dword + fh.size;
-	}
-	else
-	{
-		dest->ch.size.HighPart = 0;
-		dest->ch.size.LowPart = fh.size;
-	}
-
 	switch (fh.type)
 	{
 	case HEADER_TYPE_ARCHIVE:
@@ -65,6 +54,7 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 	case HEADER_TYPE_FILE:
 		READ_ITEM (ffh);
 
+		dest->ch.size.QuadPart = (LONGLONG) ffh.packedSize + fh.size;
 		dest->fh.size.LowPart = ffh.size;
 		dest->fh.os = ffh.os;
 		dest->fh.crc = ffh.crc;
@@ -119,6 +109,19 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 					READ_ITEM (byte);
 				}
 			}
+		}
+		break;
+
+	default:
+		if (fh.flags & LONG_BLOCK)
+		{
+			READ_ITEM (dword);
+			dest->ch.size.QuadPart = (LONGLONG) dword + fh.size;
+		}
+		else
+		{
+			dest->ch.size.HighPart = 0;
+			dest->ch.size.LowPart = fh.size;
 		}
 	}
 

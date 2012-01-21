@@ -596,10 +596,16 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 								(*ok_files_found) ++;
 						}
 						else
+						{
+							file->unsupported = true;
 							DbgLog ((LOG_TRACE, 2, L"Unknown file extension."));
+						}
 					}
 					else
+					{
+						file->unsupported = true;
 						DbgLog ((LOG_TRACE, 2, L"No file extension."));
+					}
 				}
 
 				if (filename != file->filename)

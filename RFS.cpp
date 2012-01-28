@@ -675,15 +675,15 @@ INT_PTR CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wP
 
 		while (file)
 		{
-			if (file->unsupported)
-				continue;
-
-			len = (int) strlen (file->filename) + 1;
-			tempString = new wchar_t [len];
-			MultiByteToWideChar (CP_ACP, 0, file->filename, -1, tempString, len);
-			index = ListBox_AddString (GetDlgItem (hwndDlg, IDC_FILELIST), tempString);
-			ListBox_SetItemData(GetDlgItem (hwndDlg, IDC_FILELIST), index, file);
-			delete [] tempString;
+			if (!file->unsupported)
+			{
+				len = (int) strlen (file->filename) + 1;
+				tempString = new wchar_t [len];
+				MultiByteToWideChar (CP_ACP, 0, file->filename, -1, tempString, len);
+				index = ListBox_AddString (GetDlgItem (hwndDlg, IDC_FILELIST), tempString);
+				ListBox_SetItemData(GetDlgItem (hwndDlg, IDC_FILELIST), index, file);
+				delete [] tempString;
+			}
 
 			file = file_list->Next (file);
 		}

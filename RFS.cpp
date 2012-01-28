@@ -688,6 +688,7 @@ INT_PTR CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wP
 			file = file_list->Next (file);
 		}
 		ListBox_SetCurSel (GetDlgItem (hwndDlg, IDC_FILELIST), 0);
+		SetForegroundWindow (hwndDlg);
 		return TRUE;
 	}
 	case WM_COMMAND:

@@ -79,32 +79,10 @@ DWORD ReadHeader (HANDLE file, rar_header_t *dest)
 		READ_ITEM2 (dest->fh.filename, dest->fh.name_len);
 		dest->fh.filename [dest->fh.name_len] = 0;
 
-		if (fh.flags & LHD_SALT)
-			READ_ITEM2 (dest->fh.salt, 8);
-
-		if (fh.flags & LHD_EXTTIME)
+		if (acc < fh.size)
 		{
-			WORD flags;
-			READ_ITEM (flags);
-			for (int i= 0 ; i < 4; i++)
-			{
-				DWORD rmode = flags >> (3 - i) * 4;
-				if (!(rmode & 8))
-					continue;
-
-				if (i != 0)
-				{
-					DWORD dosTime;
-					READ_ITEM (dosTime);
-				}
-
-				int count = rmode & 3;
-				for (int j = 0; j < count; j++)
-				{
-					BYTE byte;
-					READ_ITEM (byte);
-				}
-			}
+			SetFilePointer (file, (LONG) (fh.size - acc), NULL, FILE_CURRENT);
+			acc = fh.size;
 		}
 		break;
 

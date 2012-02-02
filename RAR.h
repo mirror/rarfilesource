@@ -82,8 +82,6 @@ typedef struct
 
 	char    *filename;
 
-	BYTE    salt [8];
-
 	BYTE    os;
 	BYTE    version;
 	BYTE    method;

@@ -85,7 +85,7 @@ HRESULT File::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuffer, LONG 
 
 	if (!(o.hEvent = CreateEvent (NULL, FALSE, FALSE, NULL)))
 	{
-		ErrorMsg (GetLastError (), L"CRFSOutputPin::SyncRead - CreateEvent)");
+		ErrorMsg (GetLastError (), L"CRFSOutputPin::SyncRead - CreateEvent");
 		return S_FALSE;
 	}
 
@@ -109,7 +109,7 @@ HRESULT File::SyncRead (LONGLONG llPosition, DWORD lLength, BYTE* pBuffer, LONG 
 		}
 		if (!GetOverlappedResult (part->file, &o, &read, TRUE))
 		{
-			ErrorMsg (GetLastError (), L"CRFSOutputPin::SyncRead - GetOverlappedResult)");
+			ErrorMsg (GetLastError (), L"CRFSOutputPin::SyncRead - GetOverlappedResult");
 			break;
 		}
 		lLength -= read;

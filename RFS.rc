@@ -28,7 +28,7 @@ BEGIN
             VALUE "FileDescription", "RAR File Source DirectShow Filter\0"
             VALUE "FileVersion", "0.9.2\0"
             VALUE "InternalName", "RARFileSource\0"
-            VALUE "LegalCopyright", "(C) 2008, OctaneSnail"
+            VALUE "LegalCopyright", "(C) 2008-2012, OctaneSnail"
             VALUE "OriginalFilename", "RARFileSource.ax\0"
             VALUE "ProductName", "RAR File Source\0"
             VALUE "ProductVersion", "0.9.2\0"

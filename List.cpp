@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, OctaneSnail <os@v12pwr.com>
+ * Copyright (C) 2008-2012, OctaneSnail <os@v12pwr.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

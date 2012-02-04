@@ -227,6 +227,28 @@ STDMETHODIMP CRARFileSource::NonDelegatingQueryInterface (REFIID riid, void **pp
 		return CBaseFilter::NonDelegatingQueryInterface (riid, ppv);
 }
 
+/* static */
+void CRARFileSource::UpdateArchiveName (wchar_t *ext, size_t len, int volume, bool new_numbering)
+{
+	if (new_numbering)
+	{
+		StringCchPrintf (ext, len + 1, L"%0*d", len, volume + 1);
+		ext [len] = L'.';
+	}
+	else
+	{
+		ASSERT (len == 2);
+
+		if (volume == 0)
+		{
+			ext [0] = L'a';
+			ext [1] = L'r';
+		}
+		else
+			StringCchPrintf (ext, len + 1, L"%02d", volume - 1);
+	}
+}
+
 #define HEADER_SKIP_FILE \
 	delete [] rh.fh.filename; \
 	SetFilePointerEx (hFile, rh.bytesRemaining, NULL, FILE_CURRENT); \
@@ -237,7 +259,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	DWORD dwBytesRead;
 	char *filename = NULL;
 	wchar_t *current_rar_filename = NULL, *rar_ext;
-	bool first_archive_file = true;
+	bool first_archive_file = true, rewind;
 	bool multi_volume = false, new_numbering = false;
 	rar_header_t rh;
 	BYTE marker [7];
@@ -258,6 +280,9 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	Anchor<File> af (&file);
 	ArrayAnchor<wchar_t> acrf (&current_rar_filename);
 
+	HANDLE hFile = INVALID_HANDLE_VALUE;
+	Anchor<HANDLE> ha(&hFile);
+
 	int cch = lstrlen (archive_name) + 1;
 
 	current_rar_filename = new wchar_t [cch];
@@ -271,21 +296,27 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 
 	rar_ext = wcsrchr (current_rar_filename, '.');
 
-	DbgLog ((LOG_TRACE, 2, L"Loading file \"%s\".", current_rar_filename));
-	HANDLE hFile = CreateFile (current_rar_filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE) 
-	{
-		ErrorMsg (GetLastError (), L"Could not open file \"%s\"", current_rar_filename);
-		return FALSE;
-	}
-	Anchor<HANDLE> ha(&hFile);
-
 	if (getMediaTypeList (&mediaTypeList) == -1)
 		return FALSE;		// this means out of memory
 
 	// Scan through archive volume(s)
 	while (true)
 	{
+		ha.Close ();
+		DbgLog ((LOG_TRACE, 2, L"Loading file \"%s\".", current_rar_filename));
+		hFile = CreateFile (current_rar_filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+		if (hFile == INVALID_HANDLE_VALUE)
+		{
+			if (first_archive_file || rewind)
+			{
+				ErrorMsg (GetLastError (), L"Could not open file \"%s\".", current_rar_filename);
+				return FALSE;
+			}
+			else
+				break;
+		}
+		rewind = false;
+
 		// Read marker.
 		if (!ReadFile (hFile, marker, 7, &dwBytesRead, NULL) || dwBytesRead != 7)
 		{
@@ -319,8 +350,6 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 
 		if (first_archive_file)
 		{
-			first_archive_file = false;
-
 			new_numbering = !!(rh.ch.flags & MHD_NEWNUMBERING);
 			multi_volume = !!(rh.ch.flags & MHD_VOLUME);
 
@@ -351,26 +380,10 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				if (!(rh.ch.flags & MHD_FIRSTVOLUME))
 				{
 					DbgLog ((LOG_TRACE, 2, L"Rewinding to the first file in the set."));
+					UpdateArchiveName (rar_ext, volume_digits, volumes, new_numbering);
 
-					if (new_numbering)
-					{
-						StringCchPrintf (rar_ext, volume_digits + 1, L"%0*d", volume_digits, 1);
-						rar_ext [volume_digits] = L'.';
-					}
-					else
-					{
-						rar_ext [0] = L'a';
-						rar_ext [1] = L'r';
-					}
-
-					DbgLog ((LOG_TRACE, 2, L"Loading file \"%s\".", current_rar_filename));
-					ha.Close();
-					hFile = CreateFile (current_rar_filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-					if (hFile == INVALID_HANDLE_VALUE) 
-					{
-						ErrorMsg (GetLastError (), L"Could not open file \"%s\".", current_rar_filename);
-						return FALSE;
-					}
+					first_archive_file = false;
+					rewind = true;
 					continue;
 				}
 			}
@@ -442,11 +455,32 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 			}
 			else
 			{
+				if (!multi_volume && rh.ch.flags & (LHD_SPLIT_BEFORE | LHD_SPLIT_AFTER))
+				{
+					ErrorMsg (0, L"Split file in a single volume archive.");
+					delete [] rh.fh.filename;
+					return FALSE;
+				}
+
 				if (rh.ch.flags & LHD_SPLIT_BEFORE)
 				{
-					// TODO: Decide if it's better to just abort the entire scanning process here.
-					DbgLog ((LOG_TRACE, 2, L"Not at the beginning of the file."));
-					HEADER_SKIP_FILE
+					if (first_archive_file)
+					{
+						// Some archives incorrectly have MHD_FIRSTVOLUME set on all files, attempt rewind.
+						DbgLog ((LOG_TRACE, 2, L"Rewinding to the first file in the set."));
+						UpdateArchiveName (rar_ext, volume_digits, volumes, new_numbering);
+
+						rewind = true;
+
+						delete [] rh.fh.filename;
+						break;
+					}
+					else
+					{
+						// TODO: Decide if it's better to just abort the entire scanning process here.
+						DbgLog ((LOG_TRACE, 2, L"Not at the beginning of the file."));
+						HEADER_SKIP_FILE
+					}
 				}
 
 				files ++;
@@ -618,28 +652,17 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 			}
 		}
 
+		first_archive_file = false;
+
+		if (rewind)
+			continue;
+
 		if (!multi_volume)
 			break;
 
-		// Open the next file.
-
+		// Continue to the next volume.
 		volumes ++;
-
-		StringCchPrintf (rar_ext, volume_digits + 1, L"%0*d", volume_digits, new_numbering ? volumes + 1 : volumes - 1);
-		if (new_numbering)
-			rar_ext [volume_digits] = L'.';
-
-		DbgLog ((LOG_TRACE, 2, L"Loading file \"%s\".", current_rar_filename));
-		ha.Close();
-		hFile = CreateFile (current_rar_filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-		if (hFile == INVALID_HANDLE_VALUE) 
-		{
-			if (!file)
-				break;
-
-			ErrorMsg (GetLastError (), L"Could not open file \"%s\".", current_rar_filename);
-			return FALSE;
-		}
+		UpdateArchiveName (rar_ext, volume_digits, volumes, new_numbering);
 	}
 
 	if (!files)
@@ -652,7 +675,6 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	{
 		// TODO: Decide if we should allow playback of truncated files.
 		files --;
-		delete file;
 		ErrorMsg (0, L"Couldn't find all archive volumes.");
 	}
 

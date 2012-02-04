@@ -8,8 +8,8 @@
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,9,2,0
- PRODUCTVERSION 0,9,2,0
+ FILEVERSION 0,9,3,0
+ PRODUCTVERSION 0,9,3,0
  FILEFLAGSMASK 0x30003fL
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
@@ -26,12 +26,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "OctaneSnail\0"
             VALUE "FileDescription", "RAR File Source DirectShow Filter\0"
-            VALUE "FileVersion", "0.9.2\0"
+            VALUE "FileVersion", "0.9.3\0"
             VALUE "InternalName", "RARFileSource\0"
             VALUE "LegalCopyright", "(C) 2008-2012, OctaneSnail"
             VALUE "OriginalFilename", "RARFileSource.ax\0"
             VALUE "ProductName", "RAR File Source\0"
-            VALUE "ProductVersion", "0.9.2\0"
+            VALUE "ProductVersion", "0.9.3\0"
             VALUE "ActiveMovie", "Filter dll\0"
             VALUE "OLESelfRegister", "AM20\0"
         END

@@ -18,10 +18,10 @@
 !include Library.nsh
 !include x64.nsh
 
-!define VERSION "v0.9.2"
+!define VERSION "0.9.3"
 
 Name "RAR File Source"
-OutFile "RARFileSource-${VERSION}.exe"
+OutFile "RARFileSource-v${VERSION}.exe"
 
 !define REGKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\RARFileSource"
 

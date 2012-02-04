@@ -81,7 +81,7 @@ CFactoryTemplate g_Templates [] =
 	}
 };
 
-int g_cTemplates = sizeof (g_Templates) / sizeof (g_Templates[0]);
+int g_cTemplates = sizeof (g_Templates) / sizeof (g_Templates [0]);
 
 
 /* static */
@@ -127,7 +127,7 @@ STDAPI DllRegisterServer ()
 			return ret;
 	}
 
-	ret = RegSetValueExA (key, "Source Filter", 0, REG_SZ, (BYTE *) RFS_GUID_STRING, (DWORD) strlen(RFS_GUID_STRING) + 1);
+	ret = RegSetValueExA (key, "Source Filter", 0, REG_SZ, (BYTE *) RFS_GUID_STRING, (DWORD) strlen (RFS_GUID_STRING) + 1);
 
 	if (ret != ERROR_SUCCESS)
 	{
@@ -152,7 +152,7 @@ STDAPI DllRegisterServer ()
 				continue;
 		}
 
-		ret = RegSetValueExA (key, "Source Filter", 0, REG_SZ, (BYTE *) RFS_GUID_STRING, (DWORD) strlen(RFS_GUID_STRING) + 1);
+		ret = RegSetValueExA (key, "Source Filter", 0, REG_SZ, (BYTE *) RFS_GUID_STRING, (DWORD) strlen (RFS_GUID_STRING) + 1);
 
 		RegCloseKey (key);
 	}
@@ -190,7 +190,7 @@ STDAPI DllUnregisterServer ()
 	return AMovieDllRegisterServer2 (FALSE);
 }
 
-CRARFileSource::CRARFileSource(LPUNKNOWN punk, HRESULT *phr) :
+CRARFileSource::CRARFileSource (LPUNKNOWN punk, HRESULT *phr) :
 	CBaseFilter (L"RAR File Source", punk, &m_lock, CLSID_RARFileSource),
 	m_pin (this, &m_lock, phr),
 	m_file_name (NULL),
@@ -200,7 +200,7 @@ CRARFileSource::CRARFileSource(LPUNKNOWN punk, HRESULT *phr) :
 		*phr = S_OK;
 } 
 
-CRARFileSource::~CRARFileSource() 
+CRARFileSource::~CRARFileSource ()
 {
 	delete m_file_name;
 	delete m_file;
@@ -214,7 +214,7 @@ CUnknown *CRARFileSource::CreateInstance (LPUNKNOWN punk, HRESULT *phr) // OK
 		*phr = E_OUTOFMEMORY;
 
 	DbgSetModuleLevel (LOG_TRACE, 2);
-	DbgLog((LOG_TRACE, 2, L"CRARFileSource::CreateInstance() succeded."));
+	DbgLog((LOG_TRACE, 2, L"CRARFileSource::CreateInstance () succeded."));
 
 	return pNewObject;
 }
@@ -275,13 +275,13 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	LARGE_INTEGER zero = {0};
 
 	MediaType *mType;
-	List<MediaType> mediaTypeList(true);
+	List<MediaType> mediaTypeList (true);
 
 	Anchor<File> af (&file);
 	ArrayAnchor<wchar_t> acrf (&current_rar_filename);
 
 	HANDLE hFile = INVALID_HANDLE_VALUE;
-	Anchor<HANDLE> ha(&hFile);
+	Anchor<HANDLE> ha (&hFile);
 
 	int cch = lstrlen (archive_name) + 1;
 
@@ -303,7 +303,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	while (true)
 	{
 		ha.Close ();
-		DbgLog ((LOG_TRACE, 2, L"Loading file \"%s\".", current_rar_filename));
+		DbgLog((LOG_TRACE, 2, L"Loading file \"%s\".", current_rar_filename));
 		hFile = CreateFile (current_rar_filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 		if (hFile == INVALID_HANDLE_VALUE)
 		{
@@ -334,7 +334,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 		if (ReadHeader (hFile, &rh))
 			return files;
 
-		LOG_HEADER (&rh);
+		LOG_HEADER(&rh);
 
 		if (rh.ch.type != HEADER_TYPE_ARCHIVE)
 		{
@@ -379,7 +379,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 
 				if (!(rh.ch.flags & MHD_FIRSTVOLUME))
 				{
-					DbgLog ((LOG_TRACE, 2, L"Rewinding to the first file in the set."));
+					DbgLog((LOG_TRACE, 2, L"Rewinding to the first file in the set."));
 					UpdateArchiveName (rar_ext, volume_digits, volumes, new_numbering);
 
 					first_archive_file = false;
@@ -406,7 +406,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					return files;
 			}
 
-			LOG_HEADER (&rh);
+			LOG_HEADER(&rh);
 
 			if (rh.ch.type == HEADER_TYPE_END)
 			{
@@ -419,18 +419,18 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 			if (rh.ch.type != HEADER_TYPE_FILE)
 			{
 				SetFilePointerEx (hFile, rh.bytesRemaining, NULL, FILE_CURRENT);
-				DbgLog ((LOG_TRACE, 2,L"Skipping unknown header of type %02x.", rh.ch.type));
+				DbgLog((LOG_TRACE, 2, L"Skipping unknown header of type %02x.", rh.ch.type));
 				continue;
 			}
 
-			DbgLog ((LOG_TRACE, 2, L"SIZE %08lx %08lx  OS %02x  CRC %08lx  TIMESTAMP %08lx  VERSION %d  METHOD %02x  LEN %04lx  ATTRIB %08lx",
+			DbgLog((LOG_TRACE, 2, L"SIZE %08lx %08lx  OS %02x  CRC %08lx  TIMESTAMP %08lx  VERSION %d  METHOD %02x  LEN %04lx  ATTRIB %08lx",
 				rh.fh.size.HighPart, rh.fh.size.LowPart, rh.fh.os, rh.fh.crc, rh.fh.timestamp, rh.fh.version, rh.fh.method, rh.fh.name_len, rh.fh.attributes));
 
-			DbgLog ((LOG_TRACE, 2, L"FILENAME \"%S\"", rh.fh.filename));
+			DbgLog((LOG_TRACE, 2, L"FILENAME \"%S\"", rh.fh.filename));
 
 			if ((rh.ch.flags & LHD_WINDOWMASK) == LHD_DIRECTORY)
 			{
-				DbgLog ((LOG_TRACE, 2, L"Skipping directory."));
+				DbgLog((LOG_TRACE, 2, L"Skipping directory."));
 				HEADER_SKIP_FILE
 			}
 
@@ -440,14 +440,14 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				{
 					// TODO: We should probably dump the old file start fresh with this one
 					// since the lazy error handling at other places may cause us to end up here.
-					DbgLog ((LOG_TRACE, 2, L"Incorrect file found."));
+					DbgLog((LOG_TRACE, 2, L"Incorrect file found."));
 					HEADER_SKIP_FILE
 				}
 
 				if (!(rh.ch.flags & LHD_SPLIT_BEFORE))
 				{
 					// TODO: Decide if it's better to ignore the missing flag.
-					DbgLog ((LOG_TRACE, 2, L"LHD_SPLIT_BEFORE flag was not set as expected."));
+					DbgLog((LOG_TRACE, 2, L"LHD_SPLIT_BEFORE flag was not set as expected."));
 					HEADER_SKIP_FILE
 				}
 
@@ -467,7 +467,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					if (first_archive_file)
 					{
 						// Some archives incorrectly have MHD_FIRSTVOLUME set on all files, attempt rewind.
-						DbgLog ((LOG_TRACE, 2, L"Rewinding to the first file in the set."));
+						DbgLog((LOG_TRACE, 2, L"Rewinding to the first file in the set."));
 						UpdateArchiveName (rar_ext, volume_digits, volumes, new_numbering);
 
 						rewind = true;
@@ -478,7 +478,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					else
 					{
 						// TODO: Decide if it's better to just abort the entire scanning process here.
-						DbgLog ((LOG_TRACE, 2, L"Not at the beginning of the file."));
+						DbgLog((LOG_TRACE, 2, L"Not at the beginning of the file."));
 						HEADER_SKIP_FILE
 					}
 				}
@@ -505,13 +505,13 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 
 				if (rh.ch.flags & LHD_PASSWORD)
 				{
-					DbgLog ((LOG_TRACE, 2, L"Encrypted files are not supported."));
+					DbgLog((LOG_TRACE, 2, L"Encrypted files are not supported."));
 					file->unsupported = true;
 				}
 
 				if (rh.fh.method != 0x30)
 				{
-					DbgLog ((LOG_TRACE, 2, L"Compressed files are not supported."));
+					DbgLog((LOG_TRACE, 2, L"Compressed files are not supported."));
 					file->unsupported = true;
 				}
 			}
@@ -558,7 +558,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 			if (!(rh.ch.flags & LHD_SPLIT_AFTER))
 			{
 				if (!file->unsupported && file->size != collected)
-					DbgLog ((LOG_TRACE, 2, L"The file is not the sum of it's parts. expected = %lld, actual = %lld", file->size, collected));
+					DbgLog((LOG_TRACE, 2, L"The file is not the sum of it's parts. expected = %lld, actual = %lld", file->size, collected));
 
 				if (file->parts)
 				{
@@ -583,32 +583,32 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					}
 				}
 
-				if(!file->unsupported)
+				if (!file->unsupported)
 				{
-					if (!checkFileForMediaType (file,&mediaTypeList,&mType))
+					if (!checkFileForMediaType (file, &mediaTypeList, &mType))
 						return files;		// this means out of memory
 
-					if(mType)
+					if (mType)
 					{
 #ifdef _DEBUG
 						LPOLESTR majorType, subType;
 						StringFromCLSID (mType->majorType, &majorType);
 						StringFromCLSID (mType->subType, &subType);
-						DbgLog ((LOG_TRACE, 2, L"Filetype detection determined:"));
-						DbgLog ((LOG_TRACE, 2, L"  Major type: %s", majorType));
-						DbgLog ((LOG_TRACE, 2, L"  Subtype: %s", subType));
-						CoTaskMemFree(majorType);
-						CoTaskMemFree(subType);
+						DbgLog((LOG_TRACE, 2, L"Filetype detection determined:"));
+						DbgLog((LOG_TRACE, 2, L"  Major type: %s", majorType));
+						DbgLog((LOG_TRACE, 2, L"  Subtype: %s", subType));
+						CoTaskMemFree (majorType);
+						CoTaskMemFree (subType);
 #endif
-						file->media_type.SetType(&mType->majorType);
-						file->media_type.SetSubtype(&mType->subType);
+						file->media_type.SetType (&mType->majorType);
+						file->media_type.SetSubtype (&mType->subType);
 						file->type_known = true;
-						(*ok_files_found)++;
+						(*ok_files_found) ++;
 					}
 				}
 
 				// TODO: Figure out if checking file extensions is necessary anymore.
-				if(!file->type_known)
+				if (!file->type_known)
 				{
 					char *ext = strrchr (file->filename, '.');
 
@@ -633,13 +633,13 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 						else
 						{
 							file->unsupported = true;
-							DbgLog ((LOG_TRACE, 2, L"Unknown file extension."));
+							DbgLog((LOG_TRACE, 2, L"Unknown file extension."));
 						}
 					}
 					else
 					{
 						file->unsupported = true;
-						DbgLog ((LOG_TRACE, 2, L"No file extension."));
+						DbgLog((LOG_TRACE, 2, L"No file extension."));
 					}
 				}
 
@@ -697,7 +697,7 @@ INT_PTR CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wP
 				tempString = new wchar_t [len];
 				MultiByteToWideChar (CP_ACP, 0, file->filename, -1, tempString, len);
 				index = ListBox_AddString (GetDlgItem (hwndDlg, IDC_FILELIST), tempString);
-				ListBox_SetItemData(GetDlgItem (hwndDlg, IDC_FILELIST), index, file);
+				ListBox_SetItemData (GetDlgItem (hwndDlg, IDC_FILELIST), index, file);
 				delete [] tempString;
 			}
 
@@ -712,7 +712,7 @@ INT_PTR CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wP
 		{
 		case IDOK:
 				index = ListBox_GetCurSel (GetDlgItem (hwndDlg, IDC_FILELIST));
-				EndDialog (hwndDlg, ListBox_GetItemData(GetDlgItem (hwndDlg, IDC_FILELIST), index));
+				EndDialog (hwndDlg, ListBox_GetItemData (GetDlgItem (hwndDlg, IDC_FILELIST), index));
 				return TRUE;
 
 		case IDCANCEL:
@@ -724,7 +724,7 @@ INT_PTR CALLBACK CRARFileSource::DlgFileList (HWND hwndDlg, UINT uMsg, WPARAM wP
 			{
 				case LBN_DBLCLK:
 					index = ListBox_GetCurSel ((HWND) lParam);
-					EndDialog (hwndDlg, ListBox_GetItemData((HWND) lParam, index));
+					EndDialog (hwndDlg, ListBox_GetItemData ((HWND) lParam, index));
 					return TRUE;
 			}
 		}
@@ -751,7 +751,7 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 
 	if (m_file)
 	{
-		DbgLog ((LOG_TRACE, 2, L"CRARFileSource::Load called with file already loaded."));
+		DbgLog((LOG_TRACE, 2, L"CRARFileSource::Load called with file already loaded."));
 		return E_UNEXPECTED;
 	}
 
@@ -771,7 +771,7 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 
 	num_files = ScanArchive ((wchar_t *) lpwszFileName, &file_list, &num_ok_files);
 
-	DbgLog ((LOG_TRACE, 2, L"Found %d files out of which %d are media files.", num_files, num_ok_files));
+	DbgLog((LOG_TRACE, 2, L"Found %d files out of which %d are media files.", num_files, num_ok_files));
 
 	if (!num_ok_files)
 	{
@@ -788,7 +788,7 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 	}
 	else
 	{
-		m_file = (File *) DialogBoxParam (g_hInst, MAKEINTRESOURCE(IDD_FILELIST), 0, DlgFileList, (LPARAM)&file_list);
+		m_file = (File *) DialogBoxParam (g_hInst, MAKEINTRESOURCE(IDD_FILELIST), 0, DlgFileList, (LPARAM) &file_list);
 
 		if (!m_file)
 			return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);

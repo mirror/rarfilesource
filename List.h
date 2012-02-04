@@ -43,7 +43,7 @@ template <class T> class List
 {
 public:
 	List (bool auto_clear = false) : anchor (&anchor, &anchor), clear (auto_clear) { }
-	~List() { if (clear) Clear (); }
+	~List () { if (clear) Clear (); }
 
 	bool IsEmpty (void) { return anchor.next == &anchor; }
 

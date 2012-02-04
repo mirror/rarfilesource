@@ -61,7 +61,7 @@ STDMETHODIMP CRFSOutputPin::NonDelegatingQueryInterface (REFIID riid, void **ppv
 
 STDMETHODIMP CRFSOutputPin::Connect (IPin * pReceivePin, const AM_MEDIA_TYPE *pmt)
 {
-	return CBasePin::Connect(pReceivePin, pmt);
+	return CBasePin::Connect (pReceivePin, pmt);
 }
 
 HRESULT CRFSOutputPin::GetMediaType (int iPosition, CMediaType *pMediaType)
@@ -149,7 +149,7 @@ STDMETHODIMP CRFSOutputPin::RequestAllocator (IMemAllocator *pPreferred, ALLOCAT
 		}
 	}
 
-	CMemAllocator *pMemObject = new CMemAllocator(L"RFS memory allocator", NULL, &hr);
+	CMemAllocator *pMemObject = new CMemAllocator (L"RFS memory allocator", NULL, &hr);
 
 	if (!pMemObject)
 		return E_OUTOFMEMORY;
@@ -184,7 +184,7 @@ STDMETHODIMP CRFSOutputPin::RequestAllocator (IMemAllocator *pPreferred, ALLOCAT
 	if (SUCCEEDED (hr))
 		hr = VFW_E_BADALIGN;
 
-	DbgLog ((LOG_TRACE, 2, L"RequestAllocator failed."));
+	DbgLog((LOG_TRACE, 2, L"RequestAllocator failed."));
 	return hr;
 }
 
@@ -268,7 +268,7 @@ STDMETHODIMP CRFSOutputPin::Request (IMediaSample* pSample, DWORD_PTR dwUser)
 	if (FAILED (hr))
 		return hr;
 
-	if(!(IsAligned ((INT_PTR) llPosition) && IsAligned ((INT_PTR) lLength) && IsAligned ((INT_PTR) pBuffer)))
+	if (!(IsAligned ((INT_PTR) llPosition) && IsAligned ((INT_PTR) lLength) && IsAligned ((INT_PTR) pBuffer)))
 	{
 		DbgLog((LOG_TRACE, 2, L"SyncReadAligned bad alignment. align = %lu, pos = %lld, len = %lu, buf = %p",
 			m_align, llPosition, lLength, pBuffer));
@@ -372,7 +372,7 @@ HRESULT CRFSOutputPin::DoFlush (IMediaSample **ppSample, DWORD_PTR *pdwUser)
 	ReadRequest *rr;
 	SubRequest *sr;
 
-	DbgLog ((LOG_TRACE, 2, L"WaitForNext is flushing..."));
+	DbgLog((LOG_TRACE, 2, L"WaitForNext is flushing..."));
 
 	m_lock.Lock ();
 	rr = m_requests.UnlinkLast ();
@@ -437,7 +437,7 @@ STDMETHODIMP CRFSOutputPin::WaitForNext (DWORD dwTimeout, IMediaSample **ppSampl
 		m_lock.Unlock ();
 
 		if (!rr)
-			DbgLog ((LOG_TRACE, 2, L"Got nothing?!?!"));
+			DbgLog((LOG_TRACE, 2, L"Got nothing?!?!"));
 	}
 
 	DWORD count, read, acc = 0;
@@ -526,7 +526,7 @@ STDMETHODIMP CRFSOutputPin::SyncReadAligned (IMediaSample* pSample)
 	if (FAILED (hr))
 		return hr;
 
-	if(!(IsAligned ((INT_PTR) llPosition) && IsAligned ((INT_PTR) lLength) && IsAligned ((INT_PTR) pBuffer)))
+	if (!(IsAligned ((INT_PTR) llPosition) && IsAligned ((INT_PTR) lLength) && IsAligned ((INT_PTR) pBuffer)))
 	{
 		DbgLog((LOG_TRACE, 2, L"SyncReadAligned bad alignment. align = %lu, pos = %lld, len = %lu, buf = %p",
 			m_align, llPosition, lLength, pBuffer));
@@ -572,7 +572,7 @@ STDMETHODIMP CRFSOutputPin::Length (LONGLONG *pTotal, LONGLONG *pAvailable)
 
 STDMETHODIMP CRFSOutputPin::BeginFlush (void)
 {
-	DbgLog ((LOG_TRACE, 2, L"CRFSOutputPin::BeginFlush"));
+	DbgLog((LOG_TRACE, 2, L"CRFSOutputPin::BeginFlush"));
 	m_flush = TRUE;
 	SetEvent (m_event);
 	return S_OK;
@@ -580,7 +580,7 @@ STDMETHODIMP CRFSOutputPin::BeginFlush (void)
 
 STDMETHODIMP CRFSOutputPin::EndFlush (void)
 {
-	DbgLog ((LOG_TRACE, 2, L"CRFSOutputPin::EndFlush"));
+	DbgLog((LOG_TRACE, 2, L"CRFSOutputPin::EndFlush"));
 	m_flush = FALSE;
 	return S_OK;
 }

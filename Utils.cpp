@@ -43,7 +43,7 @@ void ErrorMsg (DWORD errorCode, wchar_t *format, ...)
 						NULL, errorCode, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT), end, (DWORD) remaining, NULL);
 	}
 
-	DbgLog ((LOG_ERROR, 0, L"%s", buffer));
+	DbgLog((LOG_ERROR, 0, L"%s", buffer));
 	MessageBox (NULL, buffer, L"RAR File Source", MB_OK | MB_ICONERROR);
 }
 
@@ -95,34 +95,34 @@ void LogHeader (rar_header_t *rh)
 	int i;
 	WORD flags = rh->ch.flags;
 
-	DbgLog ((LOG_TRACE, 2, L"Header CRC %04hx  TYPE %02x  FLAGS %04hx  SIZE %08lx %08lx",
+	DbgLog((LOG_TRACE, 2, L"Header CRC %04hx  TYPE %02x  FLAGS %04hx  SIZE %08lx %08lx",
 		rh->ch.crc, rh->ch.type, rh->ch.flags, rh->ch.size.HighPart, rh->ch.size.LowPart));
 
 	switch (rh->ch.type)
 	{
 	case HEADER_TYPE_MARKER:
-		DbgLog ((LOG_TRACE, 2, L"  HEADER_TYPE_MARKER"));
+		DbgLog((LOG_TRACE, 2, L"  HEADER_TYPE_MARKER"));
 		break;
 
 	case HEADER_TYPE_ARCHIVE:
-		DbgLog ((LOG_TRACE, 2, L"  HEADER_TYPE_ARCHIVE"));
+		DbgLog((LOG_TRACE, 2, L"  HEADER_TYPE_ARCHIVE"));
 
 		for (i = 0; i < 10; i ++)
 		{
 			if (flags & 1)
-				DbgLog ((LOG_TRACE, 2, L"  %s", mhd_flags [i]));
+				DbgLog((LOG_TRACE, 2, L"  %s", mhd_flags [i]));
 
 			flags >>= 1;
 		}
 		break;
 
 	case HEADER_TYPE_FILE:
-		DbgLog ((LOG_TRACE, 2, L"  HEADER_TYPE_FILE"));
+		DbgLog((LOG_TRACE, 2, L"  HEADER_TYPE_FILE"));
 
 		for (i = 0; i < 5; i ++)
 		{
 			if (flags & 1)
-				DbgLog ((LOG_TRACE, 2, L"  %s", lhd_flags1 [i]));
+				DbgLog((LOG_TRACE, 2, L"  %s", lhd_flags1 [i]));
 
 			flags >>= 1;
 		}
@@ -132,45 +132,45 @@ void LogHeader (rar_header_t *rh)
 		for (i = 0; i < 6; i ++)
 		{
 			if (flags & 1)
-				DbgLog ((LOG_TRACE, 2, L"  %s", lhd_flags2 [i]));
+				DbgLog((LOG_TRACE, 2, L"  %s", lhd_flags2 [i]));
 
 			flags >>= 1;
 		}
 		break;
 
 	case HEADER_TYPE_SUBBLOCK:
-		DbgLog ((LOG_TRACE, 2, L"  HEADER_TYPE_SUBBLOCK"));
+		DbgLog((LOG_TRACE, 2, L"  HEADER_TYPE_SUBBLOCK"));
 		break;
 
 	case HEADER_TYPE_RECOVERY:
-		DbgLog ((LOG_TRACE, 2, L"  HEADER_TYPE_RECOVERY"));
+		DbgLog((LOG_TRACE, 2, L"  HEADER_TYPE_RECOVERY"));
 		break;
 
 	case HEADER_TYPE_NEWSUBLOCK:
-		DbgLog ((LOG_TRACE, 2, L"  HEADER_TYPE_NEWSUBLOCK"));
+		DbgLog((LOG_TRACE, 2, L"  HEADER_TYPE_NEWSUBLOCK"));
 		break;
 
 	case HEADER_TYPE_END:
-		DbgLog ((LOG_TRACE, 2, L"  HEADER_TYPE_END"));
+		DbgLog((LOG_TRACE, 2, L"  HEADER_TYPE_END"));
 
 		for (i = 0; i < 4; i ++)
 		{
 			if (flags & 1)
-				DbgLog ((LOG_TRACE, 2, L"  %s", earc_flags [i]));
+				DbgLog((LOG_TRACE, 2, L"  %s", earc_flags [i]));
 
 			flags >>= 1;
 		}
 		break;
 
 	default:
-		DbgLog ((LOG_TRACE, 2, L"  HEADER_TYPE_UNKNOWN"));
+		DbgLog((LOG_TRACE, 2, L"  HEADER_TYPE_UNKNOWN"));
 	}
 
 	if (rh->ch.flags & SKIP_IF_UNKNOWN)
-		DbgLog ((LOG_TRACE, 2, L"  SKIP_IF_UNKNOWN"));
+		DbgLog((LOG_TRACE, 2, L"  SKIP_IF_UNKNOWN"));
 
 	if (rh->ch.flags & LONG_BLOCK)
-		DbgLog ((LOG_TRACE, 2, L"  LONG_BLOCK"));
+		DbgLog((LOG_TRACE, 2, L"  LONG_BLOCK"));
 }
 
 #endif // _DEBUG

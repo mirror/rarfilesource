@@ -38,8 +38,8 @@ public:
 class File : public Node<File>
 {
 public:
-	File (void) : size (0), parts (0), list (NULL), array (NULL), m_prev_part(NULL), filename(NULL),
-		type_known (false), unsupported(false) { }
+	File (void) : size (0), parts (0), list (NULL), array (NULL), m_prev_part (NULL), filename (NULL),
+		type_known (false), unsupported (false) { }
 
 	~File (void)
 	{

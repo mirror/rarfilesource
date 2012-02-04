@@ -289,7 +289,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	if (!current_rar_filename)
 	{
 		ErrorMsg (0, L"Out of memory.");
-		return FALSE;
+		return 0;
 	}
 
 	CopyMemory (current_rar_filename, archive_name, cch * sizeof (wchar_t));
@@ -297,7 +297,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 	rar_ext = wcsrchr (current_rar_filename, '.');
 
 	if (getMediaTypeList (&mediaTypeList) == -1)
-		return FALSE;		// this means out of memory
+		return 0;		// this means out of memory
 
 	// Scan through archive volume(s)
 	while (true)
@@ -310,7 +310,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 			if (first_archive_file || rewind)
 			{
 				ErrorMsg (GetLastError (), L"Could not open file \"%s\".", current_rar_filename);
-				return FALSE;
+				return files;
 			}
 			else
 				break;
@@ -321,31 +321,31 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 		if (!ReadFile (hFile, marker, 7, &dwBytesRead, NULL) || dwBytesRead != 7)
 		{
 			ErrorMsg (GetLastError (), L"Could not read RAR header.");
-			return FALSE;
+			return files;
 		}
 
 		if (memcmp (marker, expected, 7))
 		{
 			ErrorMsg (0, L"Incorrect RAR marker.");
-			return FALSE;
+			return files;
 		}
 
 		// Read archive header.
 		if (ReadHeader (hFile, &rh))
-			return FALSE;
+			return files;
 
 		LOG_HEADER (&rh);
 
 		if (rh.ch.type != HEADER_TYPE_ARCHIVE)
 		{
 			ErrorMsg (0, L"Unexpected RAR header type.");
-			return FALSE;
+			return files;
 		}
 
 		if (rh.ch.flags & MHD_PASSWORD)
 		{
 			ErrorMsg (0, L"Encrypted RAR volumes are not supported.");
-			return FALSE;
+			return files;
 		}
 
 		if (first_archive_file)
@@ -358,7 +358,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				if (!rar_ext)
 				{
 					ErrorMsg (0, L"Input file does not end with .rar");
-					return FALSE;
+					return files;
 				}
 
 				// Locate volume counter
@@ -403,7 +403,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				if (ret == ERROR_HANDLE_EOF)
 					break;
 				else
-					return FALSE;
+					return files;
 			}
 
 			LOG_HEADER (&rh);
@@ -459,7 +459,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				{
 					ErrorMsg (0, L"Split file in a single volume archive.");
 					delete [] rh.fh.filename;
-					return FALSE;
+					return files;
 				}
 
 				if (rh.ch.flags & LHD_SPLIT_BEFORE)
@@ -494,7 +494,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				{
 					ErrorMsg (0, L"Out of memory.");
 					delete [] rh.fh.filename;
-					return FALSE;
+					return files;
 				}
 
 				file->media_type.SetType (&MEDIATYPE_Stream);
@@ -523,7 +523,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				if (!new_part)
 				{
 					ErrorMsg (0, L"Out of memory.");
-					return FALSE;
+					return files;
 				}
 
 				// Is this the 1st part?
@@ -547,7 +547,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				if (new_part->file == INVALID_HANDLE_VALUE)
 				{
 					ErrorMsg (GetLastError (), L"Could not open file \"%s\".", current_rar_filename);
-					return FALSE;
+					return files;
 				}
 			}
 
@@ -567,7 +567,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 					if (!file->array)
 					{
 						ErrorMsg (0, L"Out of memory.");
-						return FALSE;
+						return files;
 					}
 
 					FilePart *fp = file->list;
@@ -586,7 +586,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				if(!file->unsupported)
 				{
 					if (!checkFileForMediaType (file,&mediaTypeList,&mType))
-						return FALSE;		// this means out of memory
+						return files;		// this means out of memory
 
 					if(mType)
 					{
@@ -666,16 +666,9 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 		UpdateArchiveName (rar_ext, volume_digits, volumes, new_numbering);
 	}
 
-	if (!files)
-	{
-		ErrorMsg (0, L"No files found in the archive.");
-		return FALSE;
-	}
-
 	if (file)
 	{
 		// TODO: Decide if we should allow playback of truncated files.
-		files --;
 		ErrorMsg (0, L"Couldn't find all archive volumes.");
 	}
 
@@ -780,8 +773,11 @@ STDMETHODIMP CRARFileSource::Load (LPCOLESTR lpwszFileName, const AM_MEDIA_TYPE 
 
 	DbgLog ((LOG_TRACE, 2, L"Found %d files out of which %d are media files.", num_files, num_ok_files));
 
-	if (!num_files || !num_ok_files)
+	if (!num_ok_files)
+	{
+		ErrorMsg (0, L"No media files found in the archive.");
 		return E_UNEXPECTED; // TODO: Figure out a better error code.
+	}
 
 	if (num_ok_files == 1)
 	{

@@ -493,6 +493,7 @@ int CRARFileSource::ScanArchive (wchar_t *archive_name, List<File> *file_list, i
 				if (!file)
 				{
 					ErrorMsg (0, L"Out of memory.");
+					delete [] rh.fh.filename;
 					return FALSE;
 				}
 

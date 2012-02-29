@@ -245,7 +245,7 @@ void CRARFileSource::UpdateArchiveName (wchar_t *ext, size_t len, int volume, bo
 			ext [1] = L'r';
 		}
 		else
-			StringCchPrintf (ext, len + 1, L"%02d", volume - 1);
+			StringCchPrintf (ext - 1, len + 2, L"%c%02d", 114 + (volume - 1) / 100, (volume - 1) % 100);
 	}
 }
 
